@@ -24,6 +24,9 @@ void Game::createPlayers() {
 
 void Game::start() {
     onStart();
+    // start method takes in parameter new or load
+    // if load then needs to load everything from file and put in respective objects :- drawpile, discard pile, next player, human score, computer score, etc.
+    // file input validation needs to be checked especially that discard pile should never be empty when saving game state as loading game logic depends on it
 
 
     // careful while changing i

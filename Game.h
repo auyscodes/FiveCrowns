@@ -13,6 +13,7 @@ public:
     void start();
 private:
     int numRounds = 13;
+    int startingAtRound = 1;
     // vector<Player*> players;
     map<string, Player*> players;
     void onStart();

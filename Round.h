@@ -30,6 +30,7 @@ public:
     }
     // vector<Player*> & getPlayers();
     map<string, Player*>& getPlayers();
+    void collectCardsFromPiles();
 private:
     int numCardsToDeal;
     const int startRound = 3;

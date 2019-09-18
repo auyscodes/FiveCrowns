@@ -7,64 +7,41 @@
 
 
 void Round::deal() {
-    /*Code belongs to function before deal*/
+
 
     DrawPile* drawPile = DrawPile::getInstance();
     DiscardPile* discardPile = DiscardPile::getInstance();
     CardPile* cardCollection = CardPile::getInstance();
 
 
+    // if discardPile isEmpty then it is a new game
+    if (discardPile->isEmpty()){
+        // If it is a first round then builds a deck and adds to a cardcollection.
+        if (numCardsToDeal == startRound) {
+            Deck deck1 = Deck::Builder().numericFace(3, 10).specialFace({"J", "Q", "K"}).suits(
+                    {"C", "H", "D", "S", "T"}).joker(3).build();
+            deck1.shuffle();
+            Deck deck2 = Deck::Builder().numericFace(3, 10).specialFace({"J", "Q", "K"}).suits(
+                    {"C", "H", "D", "S", "T"}).joker(3).build();
+            deck2.shuffle();
 
 
-    // If it is a first round then builds a deck and adds to a cardcollection
-    // else collects all the cards from discard pile, drawpile and player's hands
-    if (numCardsToDeal == startRound) {
-
-        Deck deck1 = Deck::Builder().numericFace(3, 10).specialFace({"J", "Q", "K"}).suits(
-                {"C", "H", "D", "S", "T"}).joker(3).build();
-        deck1.shuffle();
-        Deck deck2 = Deck::Builder().numericFace(3, 10).specialFace({"J", "Q", "K"}).suits(
-                {"C", "H", "D", "S", "T"}).joker(3).build();
-        deck2.shuffle();
-
-
-        cardCollection->collect(&deck1);
-        cardCollection->collect(&deck2);
-        cardCollection->shuffle();
-
-        // plus needs to determine the first player
-
-    }
-    else{
-
-        cardCollection->collect(drawPile);
-        cardCollection->collect(discardPile);
-//        for (Player* player: players){
-//            cardCollection->collect(player->getHand());
-//        }
-        map<string, Player*>::iterator it;
-        for (it = players.begin(); it!=players.end(); it++){
-            cardCollection->collect(it->second->getHand());
+            cardCollection->collect(&deck1);
+            cardCollection->collect(&deck2);
+            cardCollection->shuffle();
         }
-        cardCollection->shuffle();
-    }
+        for (int i=0;i<numCardsToDeal;i++){
 
-    /*Code belongs to function before deal*/
-
-    for (int i=0;i<numCardsToDeal;i++){
-//        for (auto player: players){
-//
-//
-//             player->setCard(cardCollection->popFront());
-//        }
-        map<string, Player*>::iterator it;
-        for (it=players.begin();it!=players.end();it++){
-            it->second->setCard(cardCollection->popFront());
+            map<string, Player*>::iterator it;
+            for (it=players.begin();it!=players.end();it++){
+                it->second->setCard(cardCollection->popFront());
+            }
         }
-    }
 
-    drawPile->collect(cardCollection);
-    discardPile->addFront(drawPile->popFront());
+        drawPile->collect(cardCollection);
+        discardPile->addFront(drawPile->popFront());
+    }
+    // don't need to setup anything in game resume. Everything is already setup.
 
 
 }
@@ -73,13 +50,29 @@ void Round::start() {
     deal();
 
     UI::showRoundState(this);
-//    UI::showMenu();
 
+
+    // collects cards at the end of every round and puts it in the card collection
+    collectCardsFromPiles();
 }
 
-//vector<Player *>& Round::getPlayers() {
-//    return this->players;
-//}
+void Round::collectCardsFromPiles(){
+
+    DrawPile* drawPile = DrawPile::getInstance();
+    DiscardPile* discardPile = DiscardPile::getInstance();
+    CardPile* cardCollection = CardPile::getInstance();
+
+
+    cardCollection->collect(drawPile);
+    cardCollection->collect(discardPile);
+
+    map<string, Player*>::iterator it;
+    for (it = players.begin(); it!=players.end(); it++){
+        cardCollection->collect(it->second->getHand());
+    }
+    cardCollection->shuffle();
+}
+
 map<string, Player*> & Round::getPlayers() {
     return this->players;
 }
@@ -92,6 +85,3 @@ Round::Round(int round, map<string, Player *> &players) {
 
 
 
-//        for (int i=0;i<deck.getSize();i++){
-//            cout << "i : " << i << "\t" << deck.getCardAt(i)->toString() << endl;
-//        }
