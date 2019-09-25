@@ -11,6 +11,11 @@
 class Human: public Player {
 public:
     void play();
+
+private:
+    void askToChooseCardFromDrawPileOrDiscardPile();
+    void showDrawAndDiscardPile(); // To be removed later while refactoring
+    void showHand();
 };
 
 

@@ -7,15 +7,26 @@
 
 
 #include "Hand.h"
+#include "IGoOut.h"
 #include <iostream>
+#include <algorithm>
 class Player {
 public:
     Player();
     virtual void play() = 0;
     void setCard(CardInterface* card);
+    void setName(string *name);
     CardCollection* getHand();
-private:
+    string getName();
+    void setGoOutListener(IGoOut* iGoOut); // this must be made compulsory later
+    void addToScore(int score);
+
+
+protected:
     Hand* hand;
+    string* name;
+    IGoOut* iGoOut;
+    int score = 0; // initially all players have the score of 0
 };
 
 

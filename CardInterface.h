@@ -4,7 +4,7 @@
 
 #ifndef FIVECROWNS_CARDINTERFACE_H
 #define FIVECROWNS_CARDINTERFACE_H
-
+#include <iostream>
 #include <string>
 using namespace std;
 
@@ -33,6 +33,15 @@ public:
     bool operator== (CardInterface* card){
         return this->getFace() == card->getFace() && this->getSuit() == card->getSuit();
     }
+    bool match(string card){
+        cout << this->face + this->suit << endl;
+        cout << this->getFace() + this->getSuit() << endl;
+        cout << "card : " << card << endl;
+        string facesuit = this->face + this->suit;
+        if (facesuit == card) cout <<  "hellow" << endl;
+        return this->getFace() + this->getSuit() == card;
+    }
+
 
 //    virtual int getValue() = 0;
 //    virtual string getFace() = 0;

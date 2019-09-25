@@ -8,6 +8,7 @@
 #include <vector>
 #include "CardInterface.h"
 #include <algorithm>
+#include <iostream>
 
 class CardCollection{
 
@@ -57,6 +58,12 @@ public:
         return collection[position];
     }
 
+    CardInterface* popCardAt(int position){
+        CardInterface* card = *(collection.begin() + position);
+        collection.erase(collection.begin() + position);
+        return card;
+    }
+
     CardInterface* popCard(CardInterface * card){
         for (int i=0;i<collection.size();i++){
             if (collection[i] == card){
@@ -74,16 +81,26 @@ public:
 
 
     void collect(CardCollection* cardCollection){
-        for (int i=0;i<cardCollection->getSize();i++){
+        int size = cardCollection->getSize(); // !!! important to put cardcollection size in a variable otherwise will get error
+        for (int i=0;i<size;i++){
             collection.push_back(cardCollection->popFront());
+        }
+    }
+    void transformCards(string face, string wildcard){
+        // since Joker is of suit J and has 1 2 3 . Conflicts with regular 3 card. So have to check. Can make Joker start at 0 1 and 2 for easy purposes
+        for (auto card: this->collection){
+            if (card->getFace() == face && card->getSuit()!="J") card->setFace(wildcard);
         }
     }
 
     string toString(){
         string output;
         for (auto card: collection){
-            output = output + card->toString() + " ";
+            output += card->toString() + " ";
+            // cout << card->toString() << " ";
         }
+        // cout << endl;
+        // cout << output;
         return output;
     }
 private:

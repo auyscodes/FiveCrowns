@@ -7,18 +7,32 @@
 #include "Round.h"
 #include "Human.h"
 #include "Computer.h"
+#include "DataLayer.h"
 
 void Game::onStart() {
-
+    dataLayer = new DataLayer();
     // for loop above not needed
     createPlayers();
 }
 void Game::createPlayers() {
+    Human* human = new Human();
+    human->setName(new string("human"));
+//    Computer* computer = new Computer();
+//    computer->setName("computer");
+    Human* human1 = new Human();
+    human1->setName(new string("human2"));
+
 
 //    players.insert(players.begin(), new Computer());
 //    players.insert(players.begin(), new Human());
-    players["Human"] = new Human();
-    players["Computer"] = new Computer();
+//    players["Human"] = new Human();
+//    players["Computer"] = new Computer();
+    vector<Player*> * players = new vector<Player*>();
+    players->insert(players->begin(), human1);
+    players->insert(players->begin(), human);
+    dataLayer->setPlayers(players);
+    // instead of this make player class save name
+    // maybe even score
 
 }
 
@@ -30,8 +44,13 @@ void Game::start() {
 
 
     // careful while changing i
-    for (int i=1; i<=numRounds; i++){
-        Round* round = new Round(i, players);
+    for (int i=1;i<=numRounds;i++){
+        Round* round = new Round(i, dataLayer);
         round->start();
     }
+
+//    for (int i=1; i<=numRounds; i++){
+//        Round* round = new Round(i, players);
+//        round->start();
+//    }
 }

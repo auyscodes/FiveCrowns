@@ -3,14 +3,13 @@
 //
 
 #include "Player.h"
+#include "DrawPile.h"
+#include "DiscardPile.h"
 
 Player::Player() {
     hand = new Hand();
 }
 
-void Player::play() {
-
-}
 
 void Player::setCard(CardInterface *card) {
 
@@ -20,3 +19,22 @@ void Player::setCard(CardInterface *card) {
 CardCollection *Player::getHand() {
     return hand;
 }
+
+void Player::setName(string* name) {
+    this->name = name;
+}
+
+string Player::getName() {
+    return *this->name;
+}
+
+void Player::setGoOutListener(IGoOut *iGoOut) {
+    this->iGoOut = iGoOut;
+}
+
+void Player::addToScore(int score) {
+    this->score += score;
+}
+
+
+

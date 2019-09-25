@@ -14,15 +14,16 @@ void UI::showMenu() {
 
 void UI::showRoundState(Round* round) {
 
-    cout << "Round Number: " << round->getRoundNumber() << endl;
-//    for (auto  player: round->getPlayers()){
-//        cout << player->getHand()->toString() << endl;
-//    }
-    map<string, Player*> players = round->getPlayers();
-    map<string, Player*>::iterator it;
-    for (it=players.begin();it!=players.end();it++){
-        cout << it->first << " Hand : " << it->second->getHand()->toString() << endl;
+    cout << "round number: " << round->getRoundNumber() << endl;
+    for (auto  player: *round->getPlayers()){
+        cout << "name : " << player->getName() << endl;
+        cout << " \t\t hand :  "  << player->getHand()->toString() << endl;
     }
+//    map<string, Player*> players = round->getPlayers();
+//    map<string, Player*>::iterator it;
+//    for (it=players.begin();it!=players.end();it++){
+//        cout << it->first << " Hand : " << it->second->getHand()->toString() << endl;
+//    }
 }
 
 //void UI::showRoundState(Round &round) {

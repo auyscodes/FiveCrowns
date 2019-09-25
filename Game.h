@@ -7,6 +7,7 @@
 
 
 #include "Player.h"
+#include "DataLayer.h"
 #include <map>
 class Game {
 public:
@@ -14,8 +15,9 @@ public:
 private:
     int numRounds = 13;
     int startingAtRound = 1;
-    // vector<Player*> players;
-    map<string, Player*> players;
+//    vector<Player*> players;
+    DataLayer* dataLayer;
+//    map<string, Player*> players;
     void onStart();
     void createPlayers();
 };
