@@ -26,7 +26,8 @@ protected:
     Hand* hand;
     string* name;
     IGoOut* iGoOut;
-    int score = 0; // initially all players have the score of 0
+    int score = 0; // initially all players have
+    // the score of 0
 };
 
 

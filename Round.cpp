@@ -144,6 +144,9 @@ void Round::setGoOutListener() {
     }
 }
 
+
+// not complete
+// wrong now if used
 int Round::countScore(CardCollection *hand) {
     int size = hand->getSize();
     for (int i=0;i<size;i++){
@@ -180,6 +183,19 @@ string Round::convertNumCardsToDealToWildCards(int numCardsToDeal) {
 }
 
 bool Round::checkGoOutPossible(CardCollection *hand) {
+    // one way
+
+    // sort card in hand
+    // separate joker and wildcard from cards
+    // list of possible combos
+    // pass into a recursive function
+    // done
+    // can check if go out is possible
+    bool chRun = checkRun(hand);
+    bool chBook = checkBook(hand);
+    cout << "checkRun : " << chRun << endl;
+    cout << "checkBook : " << chBook << endl;
+
     return false;
 }
 

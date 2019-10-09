@@ -33,6 +33,33 @@ public:
     bool operator== (CardInterface* card){
         return this->getFace() == card->getFace() && this->getSuit() == card->getSuit();
     }
+    // checks value of cards
+    // doesn't consider suit in this regard
+    bool operator<(CardInterface* card){
+        return this->getValue() < card->getValue();
+    }
+
+    bool operator>(CardInterface* card){
+        return this->getValue() > card->getValue();
+    }
+
+    int getValue(){
+        // Note: only applicable for this game
+        // Need to change so that can insert from deck
+
+        // if joker return 50
+        if (this->suit=="J") return 50;
+
+        // if wildcard return 20
+        if (this->face=="X") return 20;
+
+        if (this->face == "K"){
+            return 13;
+        }
+        if (this->face == "Q") return 12;
+        if (this->face == "J") return 11;
+        return stoi(this->face);
+    }
     bool match(string card){
         cout << this->face + this->suit << endl;
         cout << this->getFace() + this->getSuit() << endl;

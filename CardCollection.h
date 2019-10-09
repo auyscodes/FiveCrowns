@@ -23,6 +23,8 @@ public:
     void addBack(CardInterface* card) {
         this->collection.insert(collection.end(), card);
     }
+
+    // returns
     CardInterface* getFront(){
         return *collection.begin();
     }
@@ -58,6 +60,7 @@ public:
         return collection[position];
     }
 
+    // removes a card permanently and also returns that card
     CardInterface* popCardAt(int position){
         CardInterface* card = *(collection.begin() + position);
         collection.erase(collection.begin() + position);
@@ -93,6 +96,19 @@ public:
         }
     }
 
+    vector<CardCollection*> separateNormalCardsFromOthers(){
+        CardCollection* normalCards = new CardCollection();
+        CardCollection* specialCards = new CardCollection();
+        for (CardInterface* card : collection){
+            if (card->getSuit()=="J" || card->getFace()=="X"){
+                specialCards->addFront(card);
+                continue;
+            }
+            normalCards->addFront(card);
+
+        }
+        return {normalCards, specialCards};
+    }
     string toString(){
         string output;
         for (auto card: collection){
@@ -103,6 +119,15 @@ public:
         // cout << output;
         return output;
     }
+
+    bool sameSuit(){
+        string suitOfFirstCard = collection[0]->getSuit();
+        for (int i=1;i<collection.size();i++){
+            if (collection[i]->getSuit() != suitOfFirstCard) return false;
+        }
+        return true;
+    }
+
 private:
     vector <CardInterface* > collection;
 };

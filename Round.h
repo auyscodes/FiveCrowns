@@ -19,29 +19,19 @@ class UI;
 
 class Round: public IGoOut {
 public:
-//    Round(int round, vector<Player*>& players){
-//        this->numCardsToDeal = round + 2; // in round 1 we deal 3 cards
-//        this->players = players;
-//    }
-    Round(int round, DataLayer* dataLayer);
 
-// Round(int round, vector<Player*>& players);
-    // Round(int round, map<string, Player*> & players);
+    Round(int round, DataLayer* dataLayer);
     void start();
     void deal();
-//    Player* getNextPlayer();
     int getRoundNumber(){
         return this->numCardsToDeal - 2; // in round 1 we deal 3 cards
     }
      vector<Player*> * getPlayers(); // function might not be necessary
-//    map<string, Player*>& getPlayers();
     void collectCardsFromPiles();
     void goOut(Hand* hand);
 private:
     int numCardsToDeal;
     const int startRound = 1;
-//    vector<Player*> players;
-    // map<string, Player*> players;
     DataLayer* dataLayer;
     bool onePlayerHasGoneOut;
     void setGoOutListener();
@@ -52,6 +42,61 @@ private:
 
 
     int countScore(CardCollection *hand);
+
+    bool checkRun(CardCollection * hand){
+        cout << "Executig checkRun function" << endl;
+        vector<CardCollection*> normalAndSpecialCardsOfHands = hand->separateNormalCardsFromOthers();
+        CardCollection* normalCards = normalAndSpecialCardsOfHands[0];
+        CardCollection* specialCards = normalAndSpecialCardsOfHands[1];
+        CardCollection* checkedSpecialCards = new CardCollection();
+        // first checking suit
+        if (normalCards->sameSuit()){
+
+            int size = normalCards->getSize();
+            CardInterface* prevCard = normalCards->getFront();
+            CardInterface* currCard;
+            int count = 1;
+            while(count< size){
+                currCard = normalCards->getCardAt(count);
+                if (prevCard->getValue() != currCard->getValue() + 1){
+                    if (specialCards->isEmpty()) return false;
+                    checkedSpecialCards->addFront(specialCards->popFront());
+                }
+                prevCard = currCard;
+                count++;
+            }
+            return true;
+        }
+        return false;
+    }
+
+    bool checkBook(CardCollection * hand){
+        cout << "Executing checkBook function" << endl;
+        vector<CardCollection*> normalAndSpecialCards = hand->separateNormalCardsFromOthers();
+        CardCollection* normalCards = normalAndSpecialCards[0];
+        CardCollection* specialCards = normalAndSpecialCards[1];
+        CardCollection* checkedSpecailCards = new CardCollection();
+
+        int size = normalCards->getSize();
+        int count = 1;
+        CardInterface* prevCard = normalCards->getFront();
+        CardInterface* currCard;
+
+        while(count<size){
+            currCard = normalCards->getCardAt(count);
+            if (prevCard->getValue() != currCard->getValue()){
+                if (specialCards->isEmpty()) return false;
+                checkedSpecailCards->addFront(specialCards->popFront());
+            }
+            prevCard = currCard;
+            count++;
+        }
+
+
+
+        return true;
+    }
+
 };
 
 
