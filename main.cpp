@@ -45,20 +45,59 @@ void testCheckBookFunction(){
 
     cout << "check book function test : " << Round::checkBook(hand) << endl;
 }
+CardCollection genCol(){
+    Deck deck1 = Deck::Builder().numericFace(3, 5).suits(
+            {"C"}).joker(3).build();
+    deck1.shuffle();
+    cout << deck1.toString() << endl;
+    return deck1;
+
+    CardCollection cardCollection;
+
+    vector<CardInterface*> cardCol;
+    for (int i=0;i<3;i++){
+        CardInterface* card = new Card();
+        card->setSuit(to_string(i+3));
+        card->setFace("H");
+        cardCol.push_back(card);
+    }
+    CardInterface* card1 = new Card();
+    card1->setFace("J");
+    card1->setSuit("H");
+
+    CardInterface* card2 = new Card();
+    card1->setFace("Q");
+    card1->setSuit("H");
+
+    Card* card3;
+    card1->setFace("K");
+    card1->setSuit("H");
+
+    cardCollection.addBack(cardCol[0]);
+    cardCollection.addBack(card1);
+
+    cardCollection.addBack(cardCol[1]);
+    cardCollection.addBack(card2);
+
+    cardCollection.addBack(cardCol[2]);
+    cardCollection.addBack(card3);
+}
 
 int main() {
 //    testCheckRunFunction();
 //    testCheckBookFunction();
 
-    Deck deck1 = Deck::Builder().numericFace(3, 4).suits(
-            {"C"}).joker(1).build();
-    deck1.shuffle();
-    cout << deck1.toString() << endl;
 
-    vector<CardCollection*> output = deck1.genPermutations();
+
+    vector<vector<CardInterface*>> output = genCol().genBooksAndRuns();
+    cout << "\n----------------------------------------\n";
     for (auto elem:output){
-        cout << elem->toString() << endl;
+        for (auto e: elem)  {
+            cout << e->toString() << " ";
+        }
+        cout << endl;
     }
+
 
 
 

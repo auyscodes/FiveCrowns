@@ -32,6 +32,8 @@ public:
     // cardcollection size should not be less than 3
     // normal should be sorted by value
 
+
+
     static bool checkRun(CardCollection * hand){
         cout << "Executig checkRun function" << endl;
         vector<CardCollection*> normalAndSpecialCardsOfHands = hand->separateNormalCardsFromOthers();
@@ -95,6 +97,7 @@ public:
 
         return true;
     }
+
 
 
 private:

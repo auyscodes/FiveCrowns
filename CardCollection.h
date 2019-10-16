@@ -116,7 +116,8 @@ public:
     }
 
     bool sameSuit(){
-        string suitOfFirstCard = collection[0]->getSuit();
+        if (collection.empty()) cout << "collection empty xa " << endl;
+        string suitOfFirstCard = collection.front()->getSuit(); //this is throwing vector iterator out of range error
         for (int i=1;i<collection.size();i++){
             if (collection[i]->getSuit() != suitOfFirstCard) return false;
         }
@@ -126,12 +127,160 @@ public:
     void sortCardsByValue(){
         std::sort(collection.begin(), collection.end(), compareCardsByValue);
     }
+
+
     static bool compareCardsByValue(CardInterface* card1, CardInterface* card2){
         return card1->getValue() < card2->getValue();
     }
 
     void setCollectionVector(vector<CardInterface*> col){
         this->collection  = col;
+    }
+
+
+    vector<vector<CardInterface*>> genBooksAndRuns(){
+        return genBooksAndRuns(this->collection);
+    }
+    vector<vector<CardInterface*>> genBooksAndRuns(vector<CardInterface*> cardsCol){
+        sort(cardsCol.begin(), cardsCol.end(), compareCardsByValue);
+        vector<vector<CardInterface*>> prevStack;
+        vector<vector<CardInterface*>> nextStack = {cardsCol};
+        vector<vector<CardInterface*>> output;
+        while(!nextStack.empty()){
+            prevStack = nextStack;
+            output.insert(output.begin(), prevStack.begin(), prevStack.end());
+            nextStack.clear();
+            while(!prevStack.empty()){
+                vector<CardInterface*> elem = *prevStack.begin();
+                if (elem.size()!=3) {
+
+                    for (unsigned int j=0;j<elem.size(); j++){
+                        CardInterface* card = elem[j];
+                        elem.erase(elem.begin() + j);
+                        nextStack.insert(nextStack.begin(), elem);
+                        elem.insert(elem.begin() + j, card);
+                    }
+                }
+                prevStack.erase(prevStack.begin());
+            }
+        }
+        int count = 0;
+        while(!output.empty()){
+            if (count == output.size()) break;
+            CardCollection hand;
+            hand.setCollectionVector(output[count]);
+//            if (!checkRun(hand) && !checkBook(hand)) {
+//                cout << "Not run or book" << endl;
+//            }
+            if (checkBook(hand)){
+                cout << "Book " << hand.toString() << endl;
+            }
+
+            count++;
+        }
+        return output;
+
+
+    }
+    // Note: this doesn't modify the passed hand
+    static vector<CardCollection> separateCards(CardCollection collection1){
+        CardCollection normalCards;
+        CardCollection specialCards;
+        for (unsigned int i=0;i<collection1.getSize();i++){
+            CardInterface* card = collection1.getCardAt(i);
+//        for (CardInterface* card : collection1){
+            if (card->getSuit()=="J" || card->getFace()=="X"){
+                specialCards.addFront(card);
+                continue;
+            }
+            normalCards.addFront(card);
+
+        }
+        return {normalCards, specialCards};
+    }
+
+    static bool checkRun(CardCollection hand){
+        vector<CardCollection> normalAndSpecialCardsOfHands = separateCards(hand);
+
+        CardCollection normalCards = normalAndSpecialCardsOfHands[0];
+        CardCollection specialCards = normalAndSpecialCardsOfHands[1];
+        if (normalCards.isEmpty()) return true;
+        CardCollection checkedSpecialCards;
+
+        normalCards.sortCardsByValue();
+
+        if (normalCards.sameSuit()){
+            int size = normalCards.getSize();
+            CardInterface* prevCard = normalCards.getFront();
+            CardInterface* currCard;
+            int count = 1;
+            while(count< size){
+                currCard = normalCards.getCardAt(count);
+                if (prevCard->getValue() != currCard->getValue() - 1){
+                    if (specialCards.isEmpty()) return false;
+                    checkedSpecialCards.addFront(specialCards.popFront());
+                }
+                prevCard = currCard;
+                count++;
+            }
+            return true;
+        }
+        return false;
+    }
+    // assumption hand always has cards greater than 3
+    // if special cards are not present then hand has joker or wildcards only
+
+    // note: check book is returning wrong result
+    static bool checkBook(CardCollection  hand){
+        vector<CardCollection> normalAndSpecialCards = separateCards(hand);
+        CardCollection normalCards = normalAndSpecialCards[0];
+        CardCollection specialCards = normalAndSpecialCards[1];
+        CardCollection* checkedSpecailCards = new CardCollection();
+        if (normalCards.isEmpty()) return true;
+        // no need to sort cards by value
+        int size = normalCards.getSize();
+        int count = 1;
+        CardInterface* prevCard = normalCards.getFront();
+        CardInterface* currCard;
+
+        while(count<size){
+            currCard = normalCards.getCardAt(count);
+            if (prevCard->getValue() != currCard->getValue()){
+                if (specialCards.isEmpty()) return false;
+                checkedSpecailCards->addFront(specialCards.popFront());
+            }
+            prevCard = currCard;
+            count++;
+        }
+
+
+
+        return true;
+    }
+
+
+
+    // remove this later
+    void printOriginal(vector<CardInterface*> original){
+        cout << "original : " ;
+        for (int i=0;i<original.size();i++){
+            cout << original[i]->toString() <<  " ";
+        }
+        cout << endl;
+    }
+    // remove this later
+    void printTransformation(vector<vector<CardInterface* >> transformation){
+        cout << "transformation : " ;
+        cout << "[ ";
+        for (auto elem: transformation){
+            cout << "[ ";
+            for (auto e: elem){
+                cout << e->toString() << " ";
+            }
+            cout << " ] ";
+        }
+        cout << " ] " << endl;
+        cout << endl;
     }
 
     // needs at least one elment or will generate error
@@ -142,6 +291,8 @@ public:
         }
         return serialized;
     }
+
+    // doesn't work now
     vector<CardCollection*> genPermutations(){
         // vector<vector<CardInterface*>> result =  generatePermutations();
 
