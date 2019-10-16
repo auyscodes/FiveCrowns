@@ -30,8 +30,10 @@ public:
     void setSuit(string suit){
         this->suit = suit;
     }
+
+    // Added consideration for Joker
     bool operator== (CardInterface* card){
-        return this->getFace() == card->getFace() && this->getSuit() == card->getSuit();
+            return this->getFace() == card->getFace() && this->getSuit() == card->getSuit();
     }
     // checks value of cards
     // doesn't consider suit in this regard
@@ -60,12 +62,16 @@ public:
         if (this->face == "J") return 11;
         return stoi(this->face);
     }
+
+    /**
+     * Checks whether string value equals to the card.
+     * for eg. passing 8D as string should match 8D card
+     * @param card card in string format eg. 8D
+     * @return true if string matches the card
+     */
+
     bool match(string card){
-        cout << this->face + this->suit << endl;
-        cout << this->getFace() + this->getSuit() << endl;
-        cout << "card : " << card << endl;
-        string facesuit = this->face + this->suit;
-        if (facesuit == card) cout <<  "hellow" << endl;
+        if (card.empty()) throw "card empty"; // throwing exception for now change it later
         return this->getFace() + this->getSuit() == card;
     }
 
@@ -86,14 +92,3 @@ private:
 
 #endif //FIVECROWNS_CARDINTERFACE_H
 
-
-/*
- * This is discussion thread.
- * In our case to string is different depending on whether it is joker or normal card
- *
- * The case for value of each card
- * I think it is better to separate value from card because wild card has different value depending on the round
- *
- * Get face and suit are same among all the cards. So, the need to define that in child functions.
- *
- * */

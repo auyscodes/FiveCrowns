@@ -65,20 +65,36 @@ void Round::start() {
         cout  << "name : " << player->getName() << endl;
         cout << "\t\thand : " << player->getHand()->toString()<< endl;
     }
+    cout << "----------------------------------------------------------------------------------" << endl;
     // UI::showRoundState(this);
 
     // while all the players have not gone out
         // play
         // if a player has gone out count the players score
         // better set the players score
+        int nextPlayerIndex = 0;
+        int totalNumberOfPlayers = dataLayer->getPlayers()->size();
+        cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
+        cout << "playersGoneOut : "  << playersGoneOut << endl;
+        while(playersGoneOut < totalNumberOfPlayers){
+            auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
+            cout << "Next Player : " << nextPlayer->getName();
+            nextPlayer->play();
+            if (this->playersGoneOut > 0 ) {
+                nextPlayer->addToScore(countScore(nextPlayer->getHand()));
+                playersGoneOut++;
+            }
+        }
 
 
-    for (auto player: *dataLayer->getPlayers()){
-        cout << "Next Player: " << player->getName() << endl;
-        player->play();
-        if (this->onePlayerHasGoneOut) player->addToScore(countScore(player->getHand()));
-        // count player score
-    }
+    cout << "--------------------------------------------------------------------------------" << endl;
+        // the for logic below is a mistake
+//    for (auto player: *dataLayer->getPlayers()){
+//        cout << "Next Player: " << player->getName() << endl;
+//        player->play();
+//        if (this->onePlayerHasGoneOut) player->addToScore(countScore(player->getHand()));
+//        // count player score
+//    }
 
 
     // collects cards at the end of every round and puts it in the card collection
@@ -134,7 +150,9 @@ Round::Round(int round, DataLayer *dataLayer) {
 }
 
 void Round::goOut(Hand* hand) {
-    if (checkGoOutPossible(hand)) this->onePlayerHasGoneOut = true;
+    if (playersGoneOut==0){
+        if (checkGoOutPossible(hand)) this->playersGoneOut++;
+    }
     else cout << "Going out not possible" << endl;
 }
 

@@ -74,13 +74,17 @@ void Human::askToChooseCardFromDrawPileOrDiscardPile() {
         cout << "1. Enter card that you want to throw: " << endl;
         cin.ignore();
         getline(cin, card);
+        cout << card;
+        cout << "size of hand : " << hand->getSize();
         for (int i=0;i<hand->getSize();i++){
-            if (hand->getFront()->match(card)){
+            if (hand->getCardAt(i)->match(card)){
                 DiscardPile::getInstance()->addFront(hand->popCardAt(i));
                 flag = true;
+                break;
                 cout << "true" << endl;
             }
             cout << "false" << endl;
+            cout << "i : " << i << endl;
         }
         if (flag) break;
     }

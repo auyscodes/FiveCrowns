@@ -5,11 +5,13 @@
 #ifndef FIVECROWNS_CARDCOLLECTION_H
 #define FIVECROWNS_CARDCOLLECTION_H
 
+#include <random>
 #include <vector>
 #include "CardInterface.h"
 #include <algorithm>
 #include <iostream>
-
+#include "CompareCardByValue.h"
+#include <map>
 class CardCollection{
 
 public:
@@ -18,13 +20,10 @@ public:
         this->collection.insert(collection.begin(), card);
     }
 
-
-
     void addBack(CardInterface* card) {
         this->collection.insert(collection.end(), card);
     }
 
-    // returns
     CardInterface* getFront(){
         return *collection.begin();
     }
@@ -34,15 +33,9 @@ public:
     }
 
     CardInterface* popFront(){
-
-//        CardInterface * card = *collection.begin();
-//        collection.erase(collection.begin());
-//        return card;
-
-    CardInterface* card = *(collection.begin());
-    collection.erase(collection.begin());
-
-    return card;
+        CardInterface* card = *(collection.begin());
+        collection.erase(collection.begin());
+        return card;
     }
     CardInterface * popBack(){
         CardInterface * card = *(collection.begin() + collection.size());
@@ -67,6 +60,8 @@ public:
         return card;
     }
 
+
+    // Function uses overloaded operator (equals to)= need to check if (equals to)= handles wild card and joker or not
     CardInterface* popCard(CardInterface * card){
         for (int i=0;i<collection.size();i++){
             if (collection[i] == card){
@@ -78,7 +73,7 @@ public:
     }
 
     void shuffle(){
-        std::random_shuffle(collection.begin(), collection.end());
+        std::shuffle(collection.begin(), collection.end(), std::mt19937(std::random_device()()));
     }
 
 
@@ -128,36 +123,72 @@ public:
         return true;
     }
 
+    void sortCardsByValue(){
+        std::sort(collection.begin(), collection.end(), compareCardsByValue);
+    }
+    static bool compareCardsByValue(CardInterface* card1, CardInterface* card2){
+        return card1->getValue() < card2->getValue();
+    }
+
+    void setCollectionVector(vector<CardInterface*> col){
+        this->collection  = col;
+    }
+
+    // needs at least one elment or will generate error
+    string serializer(vector<CardInterface*> cardCol){
+        string serialized = cardCol.front()->toString();
+        for (int i=1;i<cardCol.size();i++){
+            serialized += " , " + cardCol[i]->toString();
+        }
+        return serialized;
+    }
+    vector<CardCollection*> genPermutations(){
+        // vector<vector<CardInterface*>> result =  generatePermutations();
+
+        vector<CardInterface*> original = collection;
+
+        vector<vector<CardInterface*>> result = genPermutationHelper(original);
+        if (result.empty()) cout << "genPermutationHelper returned empty result" << endl;
+        vector<CardCollection*> output;
+        for (auto elem: result){
+            CardCollection* cardCollection = new CardCollection();
+            cardCollection->setCollectionVector(elem);
+            output.push_back(cardCollection);
+        }
+        return output;
+    }
 private:
     vector <CardInterface* > collection;
+
+    vector<vector<CardInterface*>> genPermutationHelper(vector<CardInterface*> original){
+
+        if (original.size()==2) {
+            return {{original[0], original[1]}, {original[1], original[0]}};
+        }
+        vector<vector<CardInterface*>> result;
+        for (unsigned int i=0;i<original.size();i++){
+            CardInterface* elem = *original.begin() + i;
+            original.erase(original.begin() + i);
+            vector<vector<CardInterface*>> transformed = transformation(genPermutationHelper(original), elem);
+            result.insert(result.end(), transformed.begin(), transformed.end());
+            original.insert(original.begin()+i, elem);
+        }
+        return result;
+    }
+
+    // result : ([ a,b], [c,d] ) and card e will be tranformed to : [e,a,b], [e,a,c]
+    vector<vector<CardInterface*>> transformation(vector<vector<CardInterface*>> result, CardInterface* card){
+        vector<vector<CardInterface*>> output;
+        for (unsigned int resultIndex=0;resultIndex<result.size();resultIndex++){
+            auto elem = result[resultIndex];
+            elem.insert(elem.begin(), card);
+            output.insert(output.begin(), elem);
+        }
+        return output;
+    }
+
 };
 
 
 #endif //FIVECROWNS_CARDCOLLECTION_H
 
-/*
- * This is a discussion thread
- *
- * How does deck differ from draw pile discard pile and hand?
- * Deck is a class that builds a set or collection of cards. With the help of deck builder, of course.
- * Draw Pile, Discard Pile and hand cannot build cards.
- * Plus, draw pile, discard pile and hand are singleton classes.
- *
- * This card might not have any pure virtual functions. That means this class is not abstract class.
- *
- * Since, this class keeps card interface pointer it cannot return object of class blah type
- *
- * Why do we need virtual shuffle?
- * No, we don't.
- * Because all class implement shuffle functionality why not just declare it once here.
- *
- *
- * Why do we need to give child classes access to fill their own collection?
- * No, we don't;
- * We can set it right here
- *
- * Adding card
- * Add card to the front of the collection :-  addFront
- *
- * Add card to back of the collection :- addBack
- * Add card to certain position */
