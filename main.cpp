@@ -46,6 +46,8 @@ void testCheckBookFunction(){
     cout << "check book function test : " << Round::checkBook(hand) << endl;
 }
 CardCollection genCol(){
+	
+
     Deck deck1 = Deck::Builder().numericFace(3, 5).suits(
             {"C"}).joker(3).build();
     deck1.shuffle();
@@ -84,13 +86,13 @@ CardCollection genCol(){
 }
 
 int main() {
-//    testCheckRunFunction();
-//    testCheckBookFunction();
+    /*testCheckRunFunction();
+    testCheckBookFunction();*/
 
+	
 
-
-    vector<vector<CardInterface*>> output = genCol().genBooksAndRuns();
-    cout << "\n----------------------------------------\n";
+    vector<vector<CardInterface*>> output = genCol().getBestPossibleBooksAndRuns();
+    cout << "\n----------------------------------------main----\n";
     for (auto elem:output){
         for (auto e: elem)  {
             cout << e->toString() << " ";
@@ -99,7 +101,7 @@ int main() {
     }
 
 
-
+	
 
 
 

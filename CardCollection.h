@@ -104,6 +104,9 @@ public:
         }
         return {normalCards, specialCards};
     }
+
+	
+	
     string toString(){
         string output;
         for (auto card: collection){
@@ -137,51 +140,473 @@ public:
         this->collection  = col;
     }
 
+	// change from here
 
+	
+
+	
+    
+
+    bool checkBook(vector<CardInterface*> cards){
+        CardCollection hand;
+        hand.setCollectionVector(cards);
+        return checkBook(hand);
+    }
+    bool checkRun(vector<CardInterface*> cards){
+        CardCollection hand;
+        hand.setCollectionVector(cards);
+        return checkRun(hand);
+    }
+
+    //vector<CardInterface*> removeCards(vector<CardInterface*>& hand, vector<CardInterface*> curr){
+    //    // sorting cards by value
+    //    sort(curr.begin(), curr.end(), compareCardsByValue);
+
+    //     int handPointer = hand.size() - 1;
+    //     int currPointer = curr.size() - 1;
+    //    vector<CardInterface*> removedCards;
+
+		
+
+    //    while(handPointer >= 0 && currPointer >= 0 ){
+    //        if (hand.empty() || curr.empty()) break;
+    //        if (hand[handPointer] == curr[currPointer]) {
+    //            removedCards.push_back(hand[handPointer]);
+    //            hand.erase(hand.begin() + handPointer);
+    //            currPointer--;
+    //        }
+    //        handPointer--;
+    //    }
+    //    return removedCards;
+
+    //}
+	vector<CardInterface*> removeCards(vector<CardInterface*>& hand, vector<CardInterface*> curr) {
+		vector<CardInterface*> output;
+		bool currContains = false;
+		
+		for (int i = hand.size()-1; i >= 0; i--) {
+			CardInterface* handCard = hand[i];
+
+			for (int j = curr.size()-1; j >=0 ; j--) {
+				if (handCard == curr[j]) currContains = true;
+			}
+			if (currContains) {
+				output.push_back(handCard);
+				hand.erase(hand.begin() + i);
+				
+				currContains = false;
+			}
+
+
+		}
+		return output;
+	}
+	
+
+    void addCards(vector<CardInterface*>&hand, vector<CardInterface*> curr){
+        hand.insert(hand.end(), curr.begin(), curr.end());
+        sort(hand.begin(), hand.end(), compareCardsByValue);
+    }
+
+
+	vector<vector<CardInterface*>> getBestPossibleBooksAndRuns() {
+
+		vector<vector<CardInterface*>> listOfBooksAndRuns;
+		vector<CardInterface*> hand = this->collection;
+		// don't remove sort here
+		sort(hand.begin(), hand.end(), compareCardsByValue);
+
+
+		vector<vector<CardInterface*>> branch;
+		vector<vector<CardInterface*>> minBranch;
+		int minScore = INT_MAX;
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+		genBestHelper(hand, branch, minBranch, minScore);
+		cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+		return minBranch;
+
+
+	}
+
+
+
+	void genBestHelper(vector<CardInterface*>& hand, vector<vector<CardInterface*>>& branch, vector<vector<CardInterface*>>& minBranch, int& minScore) {
+		/*cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;*/
+		vector<vector<CardInterface*>>  listOfBooksAndRuns = genBooksAndRuns(hand);
+		/*cout << "hand ";
+		printOriginal(hand);
+		cout << endl;
+		cout << " branch ";
+		printTransformation(branch);
+		cout << endl;
+		cout << "=====================================================" << endl;*/
+		/*cout << " min Branch ";
+		printTransformation(minBranch);
+		cout << endl;
+		cout << " listOfBooksAndRuns ";
+		printTransformation(listOfBooksAndRuns);
+		cout << endl;
+		cout << "minScore ";
+		cout << minScore << endl;
+		
+		cout << " check book and run " << checkBook(hand) << checkRun(hand ) << endl;
+		cout << "-----------------------------------------------------------" << endl;
+		cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;*/
+		// previous checkBook and checkRun
+		if (listOfBooksAndRuns.empty()) { // check book and check run do not handle combo of books and runs so is gii
+			int score = countScore(hand);
+			if (score <= minScore) {
+				minScore = score;
+				minBranch = branch;
+				if (!hand.empty()) {
+					minBranch.push_back(hand);
+
+					
+				}
+				
+				cout << endl;
+				cout << "minScore : " << minScore << endl;
+				cout << "socre : " << score << endl;
+				cout << "minBranch : ";
+				printTransformation(minBranch);
+
+			}
+			
+		}
+		else {
+			for (unsigned int i = 0; i < listOfBooksAndRuns.size(); i++) {
+
+				vector<CardInterface*> curr = listOfBooksAndRuns[i];
+
+
+
+
+
+				/*cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << endl;
+				cout << "hand before removing cards : ";
+				printOriginal(hand);
+				cout << "curr : ";
+				printOriginal(curr);
+				cout << endl;*/
+
+
+
+				vector<CardInterface*> removedCards = removeCards(hand, curr);
+
+
+
+				//cout << "removed cards : ";
+				//printOriginal(removedCards);
+				//cout << " hand after removing cards : ";
+				//printOriginal(hand);
+
+
+				if (removedCards.size() == 1) {
+
+
+					cout << "hand";
+					printOriginal(hand);
+					cout << "list of books and runs ";
+					printTransformation(listOfBooksAndRuns);
+					
+					cout << "current listofBooksAndRuns : ";
+					printOriginal(curr);
+
+					cout << "current index : " << i << endl;
+					cout << " here here " << endl;
+					
+					cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+					
+				}
+				// cout << "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5" << endl;
+				if (!removedCards.empty()) {
+					branch.push_back(removedCards);
+				}
+				
+
+				genBestHelper(hand, branch, minBranch, minScore);
+				
+				
+				if (!removedCards.empty()) {
+					branch.pop_back();
+				}
+				
+				/*cout << "removed cards : ";
+				printOriginal(removedCards);
+				cout << "hand before adding removed cards  : ";
+				printOriginal(hand);
+				*/
+				
+				addCards(hand, removedCards);
+
+
+				/*cout << " hand after adding removed cards : ";
+				printOriginal(hand);*/
+			}
+		}
+	}
+	int countScore(vector<CardInterface*> hand) {
+		int sum = 0;
+		for (auto card : hand) {
+			sum += card->getValue();
+		}
+		return sum;
+	}
+
+	// just for checking outside remove it later
     vector<vector<CardInterface*>> genBooksAndRuns(){
+
         return genBooksAndRuns(this->collection);
     }
-    vector<vector<CardInterface*>> genBooksAndRuns(vector<CardInterface*> cardsCol){
-        sort(cardsCol.begin(), cardsCol.end(), compareCardsByValue);
-        vector<vector<CardInterface*>> prevStack;
-        vector<vector<CardInterface*>> nextStack = {cardsCol};
-        vector<vector<CardInterface*>> output;
-        while(!nextStack.empty()){
-            prevStack = nextStack;
-            output.insert(output.begin(), prevStack.begin(), prevStack.end());
-            nextStack.clear();
-            while(!prevStack.empty()){
-                vector<CardInterface*> elem = *prevStack.begin();
-                if (elem.size()!=3) {
-
-                    for (unsigned int j=0;j<elem.size(); j++){
-                        CardInterface* card = elem[j];
-                        elem.erase(elem.begin() + j);
-                        nextStack.insert(nextStack.begin(), elem);
-                        elem.insert(elem.begin() + j, card);
-                    }
-                }
-                prevStack.erase(prevStack.begin());
-            }
-        }
-        int count = 0;
-        while(!output.empty()){
-            if (count == output.size()) break;
-            CardCollection hand;
-            hand.setCollectionVector(output[count]);
-//            if (!checkRun(hand) && !checkBook(hand)) {
-//                cout << "Not run or book" << endl;
-//            }
-            if (checkBook(hand)){
-                cout << "Book " << hand.toString() << endl;
-            }
-
-            count++;
-        }
-        return output;
 
 
+
+	vector<vector<CardInterface*>> genBooksAndRuns(vector<CardInterface*> cardsCol) {
+		vector<vector<CardInterface*>> output;
+		if (cardsCol.size() < 3) return output;
+
+		vector<vector<CardInterface*>> books = genBooks(cardsCol);
+		vector<vector<CardInterface*>> run = genRuns(cardsCol);
+		
+		
+		output.insert(output.begin(), books.begin(), books.end());
+		output.insert(output.begin(), run.begin(), run.end());
+		return output;
+    	
+		
+	}
+
+	vector<vector<CardInterface*>> genBooks(vector<CardInterface*> cardsCol)
+    {
+		vector<vector<CardInterface*>> separateCards = separateNormalAndSpecialCards(cardsCol);
+		vector<CardInterface*>& normalCards = separateCards[0];
+		vector<CardInterface*>& specialCards = separateCards[1];
+
+		vector<vector<CardInterface*>> dividedCards = divideCards(normalCards);
+		/*for (int i=0;i<dividedCards.size();i++)
+		{
+			vector<CardInterface*>& elem = dividedCards[i];
+			for (auto specialCard : specialCards) {
+				elem.push_back(specialCard);
+			}
+		}*/
+		vector<vector<CardInterface*>> dividedCardsWSpCards = addSpecialCards(dividedCards, specialCards);
+
+		vector<vector<CardInterface*>> output;
+		for (auto elem : dividedCardsWSpCards) {
+			if (checkBook(elem)) output.push_back(elem);
+		}
+		return output;
+    	
+    	
     }
+
+	// just exposing it for now
+	vector<vector<CardInterface*>> genRuns()
+    {
+		return genRuns(this->collection);
+    }
+	
+	vector<vector<CardInterface*>> genRuns(vector<CardInterface*> cardsCol)
+    {
+    	
+		
+		
+		vector<vector<CardInterface*>> separateCards = separateNormalAndSpecialCards(cardsCol);
+		vector<CardInterface*> normalCards = separateCards[0];
+		vector<CardInterface*> specialCards = separateCards[1];
+
+		vector<vector<CardInterface*>> divideSuits = separateSuits(normalCards);
+
+
+	
+		// suru ma divide garne ani matra joker add garne
+    	/*for (int i=0;i<divideSuits.size();i++)
+    	{
+			vector<CardInterface*>& suit = divideSuits[i];
+			if (suit.empty()) continue;
+    		for (int j=0;j<specialCards.size(); j++)
+    		{
+				CardInterface* elem = specialCards[j];
+				suit.push_back(elem);
+    		}
+    		
+    	}*/
+		vector<vector<CardInterface*>> output;
+
+		for (auto suitOfCards : divideSuits) {
+			vector < vector<CardInterface*>> dividedSuitOfCards = divideCards(suitOfCards);
+			vector<vector<CardInterface*>> dividedSuitsWithSpCards = addSpecialCards(dividedSuitOfCards, specialCards);
+			for (auto elem : dividedSuitsWithSpCards) {
+				if (checkRun(elem)) {
+					output.push_back(elem);
+				}
+			}
+		}
+
+
+    	/*for (auto suitOfCards: divideSuits)
+    	{
+			vector<vector<CardInterface*>> dividedSuitOfCards = divideCards(suitOfCards);
+			for (auto elem: dividedSuitOfCards)
+			{
+				if (checkRun(elem))
+				{
+					output.push_back(elem);
+				}
+			}
+    	}*/
+
+
+		return output;
+    }
+
+	// only for testing
+	vector<vector<CardInterface*>> addSpecialCards() {
+		vector<vector<CardInterface*>> normalAndSpecialCards = separateNormalAndSpecialCards(this->collection);
+		vector<vector<CardInterface*>> dividedCards = divideCards(normalAndSpecialCards[0]);
+		return addSpecialCards(dividedCards, normalAndSpecialCards[1]);
+	}
+
+
+	// Not your simple addition
+	// to make so that keeps cards without special cards as well
+	vector<vector<CardInterface*>> addSpecialCards(vector<vector<CardInterface*>> cardsCol , vector<CardInterface*> specialCards) {
+
+		
+		vector<vector<CardInterface*>> spCardsList;
+		for (int i = 0; i < specialCards.size(); i++) {
+			vector<CardInterface*> spCards;
+			for (int j = 0; j <=i; j++) {
+				spCards.push_back(specialCards[j]);
+			}
+			spCardsList.push_back(spCards);
+		}
+		
+		vector<vector<CardInterface*>> output;
+		for (int i = 0; i < cardsCol.size(); i++) {
+			
+			for (int j = 0; j < spCardsList.size(); j++) {
+				vector<CardInterface*> elem = cardsCol[i];
+				vector<CardInterface*> spCards = spCardsList[j];
+				elem.insert(elem.end(), spCards.begin(), spCards.end());
+				if (elem.size() >= 3) {
+					output.push_back(elem);
+				}
+			}
+			// also need to add cardsCol where elem size is greater than 3
+			if (cardsCol[i].size() >= 3) output.push_back(cardsCol[i]);
+
+		}
+		
+		return output;
+	}
+
+	// cards passed here should not be special cards
+	vector<vector<CardInterface*>> separateSuits(vector<CardInterface*> cardsCol)
+    {
+		
+		
+		vector<CardInterface*> hearts;
+		vector<CardInterface*> diamonds;
+		vector<CardInterface*> clubs;
+		vector<CardInterface*> tridents;
+		vector<CardInterface*> spades;
+
+    	for (auto card: cardsCol)
+    	{
+			if (card->getSuit() == "H") hearts.push_back(card);
+			if (card->getSuit() == "T") tridents.push_back(card);
+			if (card->getSuit() == "C") clubs.push_back(card);
+			if (card->getSuit() == "S") spades.push_back(card);
+			if (card->getSuit() == "D") diamonds.push_back(card);
+    		
+    	}
+		
+		
+		return { hearts, diamonds, clubs, spades, tridents };
+    }
+
+
+	// duplicate function
+	
+	vector<vector<CardInterface*>> separateNormalAndSpecialCards(vector<CardInterface*> cardsCol)
+    {
+		
+		
+		vector<CardInterface*> normalCards;
+		vector<CardInterface*> specialCards;
+		for (unsigned int i = 0; i < cardsCol.size(); i++) {
+			CardInterface* card = cardsCol[i];
+			if (card->getSuit() == "J" || card->getFace() == "X") {
+				specialCards.push_back(card);
+				continue;
+			}
+			normalCards.push_back(card);
+
+		}
+		
+		return { normalCards, specialCards };
+    }
+	
+	vector<vector<CardInterface*>> divideCards() {
+		return divideCards(this->collection);
+	}
+
+	//vector<vector<CardInterface*>> divideCards(vector<CardInterface*> cardsCol)
+ //   {
+	//	
+	//	sort(cardsCol.begin(), cardsCol.end(), compareCardsByValue);
+	//	
+	//	vector<vector<CardInterface*>> output;
+
+ //   	// for now
+	//	if (cardsCol.empty()) return output;
+ //   	
+	//	for (int i = 0; i < cardsCol.size() - 2; i++)
+	//	{
+	//		for (int j = i + 2; j < cardsCol.size(); j++)
+	//		{
+	//			vector<CardInterface*> result;
+	//			// change this for loop later to more nicer code to copy
+	//			for (int k = i; k <= j; k++)
+	//			{
+	//				result.push_back(cardsCol[k]);
+	//			}
+	//			output.push_back(result);
+	//		}
+	//	}
+	//	
+	//	return output;
+ //   	
+ //   }
+	vector<vector<CardInterface*>> divideCards(vector<CardInterface*> cardsCol) {
+		sort(cardsCol.begin(), cardsCol.end(), compareCardsByValue);
+		
+		vector<vector<CardInterface*>> output;
+
+    	// for now
+		if (cardsCol.empty()) return output;
+    	
+		for (int i = 0; i < cardsCol.size(); i++)
+		{
+			for (int j = i; j < cardsCol.size(); j++)
+			{
+				vector<CardInterface*> result;
+				// change this for loop later to more nicer code to copy
+				for (int k = i; k <= j; k++)
+				{
+					result.push_back(cardsCol[k]);
+				}
+				output.push_back(result);
+			}
+		}
+		
+		return output;
+	}
+
+	
+   
     // Note: this doesn't modify the passed hand
     static vector<CardCollection> separateCards(CardCollection collection1){
         CardCollection normalCards;
@@ -199,12 +624,20 @@ public:
         return {normalCards, specialCards};
     }
 
+	// handles only same suit and joker
+	// does not handle combo of suit and joker
     static bool checkRun(CardCollection hand){
+		
+        if (hand.getSize()<3) return false;
+		
         vector<CardCollection> normalAndSpecialCardsOfHands = separateCards(hand);
 
         CardCollection normalCards = normalAndSpecialCardsOfHands[0];
         CardCollection specialCards = normalAndSpecialCardsOfHands[1];
+
+		
         if (normalCards.isEmpty()) return true;
+
         CardCollection checkedSpecialCards;
 
         normalCards.sortCardsByValue();
@@ -218,7 +651,13 @@ public:
                 currCard = normalCards.getCardAt(count);
                 if (prevCard->getValue() != currCard->getValue() - 1){
                     if (specialCards.isEmpty()) return false;
-                    checkedSpecialCards.addFront(specialCards.popFront());
+                    if (prevCard->getValue() != currCard->getValue()-2) {
+                        return false;
+                    }
+                    else{
+                        checkedSpecialCards.addFront(specialCards.popFront());
+                    }
+
                 }
                 prevCard = currCard;
                 count++;
@@ -229,14 +668,18 @@ public:
     }
     // assumption hand always has cards greater than 3
     // if special cards are not present then hand has joker or wildcards only
-
-    // note: check book is returning wrong result
+	// handles only single sequence of books and runs
+	// doesn't handle 33J44J conditions
     static bool checkBook(CardCollection  hand){
+
+        if (hand.getSize()<3) return false;
+
         vector<CardCollection> normalAndSpecialCards = separateCards(hand);
         CardCollection normalCards = normalAndSpecialCards[0];
         CardCollection specialCards = normalAndSpecialCards[1];
-        CardCollection* checkedSpecailCards = new CardCollection();
+
         if (normalCards.isEmpty()) return true;
+
         // no need to sort cards by value
         int size = normalCards.getSize();
         int count = 1;
@@ -246,23 +689,23 @@ public:
         while(count<size){
             currCard = normalCards.getCardAt(count);
             if (prevCard->getValue() != currCard->getValue()){
-                if (specialCards.isEmpty()) return false;
-                checkedSpecailCards->addFront(specialCards.popFront());
+                return false;
             }
             prevCard = currCard;
             count++;
         }
 
 
-
         return true;
     }
 
 
+	
+
 
     // remove this later
     void printOriginal(vector<CardInterface*> original){
-        cout << "original : " ;
+        // cout << "original : " ;
         for (int i=0;i<original.size();i++){
             cout << original[i]->toString() <<  " ";
         }
@@ -270,7 +713,7 @@ public:
     }
     // remove this later
     void printTransformation(vector<vector<CardInterface* >> transformation){
-        cout << "transformation : " ;
+        // cout << "transformation : " ;
         cout << "[ ";
         for (auto elem: transformation){
             cout << "[ ";
@@ -283,60 +726,10 @@ public:
         cout << endl;
     }
 
-    // needs at least one elment or will generate error
-    string serializer(vector<CardInterface*> cardCol){
-        string serialized = cardCol.front()->toString();
-        for (int i=1;i<cardCol.size();i++){
-            serialized += " , " + cardCol[i]->toString();
-        }
-        return serialized;
-    }
 
-    // doesn't work now
-    vector<CardCollection*> genPermutations(){
-        // vector<vector<CardInterface*>> result =  generatePermutations();
-
-        vector<CardInterface*> original = collection;
-
-        vector<vector<CardInterface*>> result = genPermutationHelper(original);
-        if (result.empty()) cout << "genPermutationHelper returned empty result" << endl;
-        vector<CardCollection*> output;
-        for (auto elem: result){
-            CardCollection* cardCollection = new CardCollection();
-            cardCollection->setCollectionVector(elem);
-            output.push_back(cardCollection);
-        }
-        return output;
-    }
+   
 private:
     vector <CardInterface* > collection;
-
-    vector<vector<CardInterface*>> genPermutationHelper(vector<CardInterface*> original){
-
-        if (original.size()==2) {
-            return {{original[0], original[1]}, {original[1], original[0]}};
-        }
-        vector<vector<CardInterface*>> result;
-        for (unsigned int i=0;i<original.size();i++){
-            CardInterface* elem = *original.begin() + i;
-            original.erase(original.begin() + i);
-            vector<vector<CardInterface*>> transformed = transformation(genPermutationHelper(original), elem);
-            result.insert(result.end(), transformed.begin(), transformed.end());
-            original.insert(original.begin()+i, elem);
-        }
-        return result;
-    }
-
-    // result : ([ a,b], [c,d] ) and card e will be tranformed to : [e,a,b], [e,a,c]
-    vector<vector<CardInterface*>> transformation(vector<vector<CardInterface*>> result, CardInterface* card){
-        vector<vector<CardInterface*>> output;
-        for (unsigned int resultIndex=0;resultIndex<result.size();resultIndex++){
-            auto elem = result[resultIndex];
-            elem.insert(elem.begin(), card);
-            output.insert(output.begin(), elem);
-        }
-        return output;
-    }
 
 };
 
