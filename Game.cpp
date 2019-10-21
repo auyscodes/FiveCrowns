@@ -15,12 +15,12 @@ void Game::onStart() {
     createPlayers();
 }
 void Game::createPlayers() {
-    Human* human = new Human();
-    human->setName(new string("human"));
+    Computer* human = new Computer();
+    human->setName(new string("computer1"));
 //    Computer* computer = new Computer();
 //    computer->setName("computer");
-    Human* human1 = new Human();
-    human1->setName(new string("human2"));
+    Computer* human1 = new Computer();
+    human1->setName(new string("computer2"));
 
 
 //    players.insert(players.begin(), new Computer());
@@ -46,11 +46,17 @@ void Game::start() {
     // careful while changing i
     for (int i=1;i<=numRounds;i++){
         Round* round = new Round(i, dataLayer);
-        round->start();
+        round->startGame();
     }
+	
 
+	displayWinnerAndLoserScore();
 //    for (int i=1; i<=numRounds; i++){
 //        Round* round = new Round(i, players);
 //        round->start();
 //    }
+}
+void Game::displayWinnerAndLoserScore() {
+	
+	
 }

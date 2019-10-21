@@ -49,6 +49,7 @@ public:
     int getSize(){
         return collection.size();
     }
+	// returns card at the index. Does not remove card
     CardInterface*  getCardAt(int position){
         return collection[position];
     }
@@ -60,7 +61,9 @@ public:
         return card;
     }
 
-
+	void addCardAt(int position, CardInterface* card) {
+		collection.insert(collection.begin() + position, card);
+	}
     // Function uses overloaded operator (equals to)= need to check if (equals to)= handles wild card and joker or not
     CardInterface* popCard(CardInterface * card){
         for (int i=0;i<collection.size();i++){
@@ -90,6 +93,11 @@ public:
             if (card->getFace() == face && card->getSuit()!="J") card->setFace(wildcard);
         }
     }
+	void undoCardsTmation(string face, string wildcard) {
+		for (auto card : this->collection) {
+			if (card->getFace() == wildcard) card->setFace(face);
+		}
+	}
 
     vector<CardCollection*> separateNormalCardsFromOthers(){
         CardCollection* normalCards = new CardCollection();
@@ -140,13 +148,6 @@ public:
         this->collection  = col;
     }
 
-	// change from here
-
-	
-
-	
-    
-
     bool checkBook(vector<CardInterface*> cards){
         CardCollection hand;
         hand.setCollectionVector(cards);
@@ -158,28 +159,6 @@ public:
         return checkRun(hand);
     }
 
-    //vector<CardInterface*> removeCards(vector<CardInterface*>& hand, vector<CardInterface*> curr){
-    //    // sorting cards by value
-    //    sort(curr.begin(), curr.end(), compareCardsByValue);
-
-    //     int handPointer = hand.size() - 1;
-    //     int currPointer = curr.size() - 1;
-    //    vector<CardInterface*> removedCards;
-
-		
-
-    //    while(handPointer >= 0 && currPointer >= 0 ){
-    //        if (hand.empty() || curr.empty()) break;
-    //        if (hand[handPointer] == curr[currPointer]) {
-    //            removedCards.push_back(hand[handPointer]);
-    //            hand.erase(hand.begin() + handPointer);
-    //            currPointer--;
-    //        }
-    //        handPointer--;
-    //    }
-    //    return removedCards;
-
-    //}
 	vector<CardInterface*> removeCards(vector<CardInterface*>& hand, vector<CardInterface*> curr) {
 		vector<CardInterface*> output;
 		bool currContains = false;
@@ -208,6 +187,44 @@ public:
         sort(hand.begin(), hand.end(), compareCardsByValue);
     }
 
+	
+	// returns true if going out is possible
+	bool isGoingOutPossible(int& score, vector<vector<CardInterface*>>& arrangedCards) {
+		
+		vector<CardInterface*> hand = this->collection;
+		// don't remove sort here
+		sort(hand.begin(), hand.end(), compareCardsByValue);
+
+
+		vector<vector<CardInterface*>> branch;
+		vector<vector<CardInterface*>> minBranch;
+		 int minScore = INT_MAX;
+		// score = INT_MAX;
+		genBestHelper(hand, branch, minBranch, minScore);
+		//genBestHelper(hand, branch, arrangedCards, score);
+		 if (minScore == 0) {
+		// if (score==0){
+			score = minScore;
+			arrangedCards = minBranch;
+
+			/*cout << "---- jadoo ---" << endl;
+			cout << "score : " << score << endl;
+			cout << "arranged cards : ";
+			printTransformation(arrangedCards);
+			cout << endl;*/
+			return true;
+		}
+		return false;
+	}
+
+	void minScoreAndBranch(int& minScore, vector<vector<CardInterface*>>& minBranch) {
+		vector<CardInterface*> hand = this->collection;
+		sort(hand.begin(), hand.end(), compareCardsByValue);
+		minScore = INT_MAX;
+		minBranch.clear();
+		vector<vector<CardInterface*>> branch;
+		genBestHelper(hand, branch, minBranch, minScore);
+	}
 
 	vector<vector<CardInterface*>> getBestPossibleBooksAndRuns() {
 
@@ -228,7 +245,7 @@ public:
 
 	}
 
-
+	
 
 	void genBestHelper(vector<CardInterface*>& hand, vector<vector<CardInterface*>>& branch, vector<vector<CardInterface*>>& minBranch, int& minScore) {
 		/*cout << "&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&" << endl;*/
@@ -264,11 +281,11 @@ public:
 					
 				}
 				
-				cout << endl;
+				/*cout << endl;
 				cout << "minScore : " << minScore << endl;
 				cout << "socre : " << score << endl;
 				cout << "minBranch : ";
-				printTransformation(minBranch);
+				printTransformation(minBranch);*/
 
 			}
 			

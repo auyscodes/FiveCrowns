@@ -13,13 +13,14 @@ class Game {
 public:
     void start();
 private:
-    int numRounds = 13;
+    int numRounds = 10;
     int startingAtRound = 1;
 //    vector<Player*> players;
     DataLayer* dataLayer;
 //    map<string, Player*> players;
     void onStart();
     void createPlayers();
+	void displayWinnerAndLoserScore();
 };
 
 

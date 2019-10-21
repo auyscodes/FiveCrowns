@@ -76,6 +76,12 @@ public:
         return this->getFace() + this->getSuit() == card;
     }
 
+	bool isSpecialCard() {
+		if (this->suit == "J" || this->face == "X") {
+			return true;
+		}
+		return false;
+	}
 
 //    virtual int getValue() = 0;
 //    virtual string getFace() = 0;

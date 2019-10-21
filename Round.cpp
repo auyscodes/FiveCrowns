@@ -35,10 +35,6 @@ void Round::deal() {
         cardCollection->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal), "X");
         for (int i=0;i<numCardsToDeal;i++){
 
-//            map<string, Player*>::iterator it;
-//            for (it=players.begin();it!=players.end();it++){
-//                it->second->setCard(cardCollection->popFront());
-//            }
             for (auto player: *dataLayer->getPlayers()){
                 player->setCard(cardCollection->popFront());
             }
@@ -76,27 +72,38 @@ void Round::start() {
         int totalNumberOfPlayers = dataLayer->getPlayers()->size();
         cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
         cout << "playersGoneOut : "  << playersGoneOut << endl;
+
+		cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n";
         while(playersGoneOut < totalNumberOfPlayers){
             auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
-            cout << "Next Player : " << nextPlayer->getName();
-            nextPlayer->play();
-            if (this->playersGoneOut > 0 ) {
-                nextPlayer->addToScore(countScore(nextPlayer->getHand()));
-                playersGoneOut++;
-            }
+            cout << "Next Player : " << nextPlayer->getName() << endl;
+
+
+			// !!! Note: it is important to keep the order of this if else statement
+			// Since, if next player in the statement goes out then playersGoneOut will be automatically incremented
+			if (this->playersGoneOut > 0) {
+				nextPlayer->play();
+				// nextPlayer->addToScore(countScore(nextPlayer->getHand()));
+				vector<vector<CardInterface*>> cardsArgnmnt;
+
+				// conflict when player already goes out
+				int score;
+				forceGoOut(nextPlayer->getHand(), score, cardsArgnmnt);
+				nextPlayer->addToScore(score);
+				playersGoneOut++;
+			}
+			else {
+				nextPlayer->play();
+			}
+			nextPlayerIndex = (++nextPlayerIndex) % (*dataLayer->getPlayers()).size();
+            
         }
 
 
     cout << "--------------------------------------------------------------------------------" << endl;
-        // the for logic below is a mistake
-//    for (auto player: *dataLayer->getPlayers()){
-//        cout << "Next Player: " << player->getName() << endl;
-//        player->play();
-//        if (this->onePlayerHasGoneOut) player->addToScore(countScore(player->getHand()));
-//        // count player score
-//    }
 
 
+	
     // collects cards at the end of every round and puts it in the card collection
     collectCardsFromPiles();
 
@@ -112,14 +119,13 @@ void Round::collectCardsFromPiles(){
     cardCollection->collect(drawPile);
     cardCollection->collect(discardPile);
 
-//    map<string, Player*>::iterator it;
-//    for (it = players.begin(); it!=players.end(); it++){
-//        cardCollection->collect(it->second->getHand());
-//    }
+
     for (auto player:*dataLayer->getPlayers()){
         cardCollection->collect(player->getHand());
     }
+	cardCollection->undoCardsTmation(to_string(numCardsToDeal), "X");
     cardCollection->shuffle();
+
 }
 
 //map<string, Player*> & Round::getPlayers() {
@@ -127,18 +133,7 @@ void Round::collectCardsFromPiles(){
 //}
 
 
-//Round::Round(int round, map<string, Player *> &players) {
-//    this->numCardsToDeal = round + 2;
-//    this->players = players;
-//
-//}
 
-
-
-//Round::Round(int round, vector<Player*>& players){
-//    this->numCardsToDeal = round + 2;
-//    this->players = players;
-//}
 
 vector<Player *> *Round::getPlayers() {
     return this->dataLayer->getPlayers();
@@ -149,11 +144,48 @@ Round::Round(int round, DataLayer *dataLayer) {
     this->dataLayer = dataLayer;
 }
 
-void Round::goOut(Hand* hand) {
-    if (playersGoneOut==0){
-        if (checkGoOutPossible(hand)) this->playersGoneOut++;
-    }
-    else cout << "Going out not possible" << endl;
+// checks if go out success. if success increases players gone out count, notifies other players and returns true
+// otherwise returns false
+bool Round::tryGoOut(Hand* hand, int& score, vector<vector<CardInterface*>>& cardsArrgnmnt) {
+	Hand new_hand = *hand; // so that hand is copied and not modified
+		if (checkGoOutPossible(&new_hand, score, cardsArrgnmnt)) {
+			/*cout << "Inside rounds try go out " << endl;
+
+			cout << "score : " << score << endl;
+			
+			cout << "Cards Arrangement : ";
+			tempPrinter(cardsArrgnmnt);*/
+
+			this->playersGoneOut++;
+			notifyOtherPlayers(this->dataLayer->getPlayers());
+			return true;
+		}
+		return false;
+	
+}
+
+
+
+
+void Round::tempPrinter(vector < vector<CardInterface*>> & cardsArrgnment) {
+	cout << " [ ";
+	for (auto elem : cardsArrgnment) {
+		cout << " [ ";
+		for (auto e : elem) {
+			cout << e->toString() << " ";
+		}
+		cout << " ] ";
+	}
+	cout << " ] ";
+}
+
+// right now notifies all the players even the  one that just go out
+void Round::notifyOtherPlayers(vector<Player*>* players) {
+	vector<Player*>& playersRef = *players;
+	for (int i = 0; i < players->size(); i++) {
+		Player* player = playersRef[i];
+		player->playerGoOut(true);
+	}
 }
 
 void Round::setGoOutListener() {
@@ -163,17 +195,18 @@ void Round::setGoOutListener() {
 }
 
 
-// not complete
-// wrong now if used
-int Round::countScore(CardCollection *hand) {
-    int size = hand->getSize();
-    for (int i=0;i<size;i++){
-        hand->getCardAt(i);
-    }
 
-    // need to edit
-    return int(1);
+void Round::forceGoOut(CardCollection* hand, int&score, vector<vector<CardInterface*>>& branch)
+{
+	CardCollection new_hand = *hand; // so that hand is copied and not modified 
+
+	new_hand.minScoreAndBranch(score, branch);
+	this->playersGoneOut++;
+	notifyOtherPlayers(this->dataLayer->getPlayers());
+
 }
+
+
 
 int Round::getScore(Card* card){
     if (card->getSuit()=="J") return 50;
@@ -194,28 +227,97 @@ int Round::getScore(Card* card){
 }
 
 string Round::convertNumCardsToDealToWildCards(int numCardsToDeal) {
-    if (numCardsToDeal < 10) return to_string(numCardsToDeal);
+    if (numCardsToDeal <= 10) return to_string(numCardsToDeal);
     if (numCardsToDeal == 11) return "J";
     if (numCardsToDeal == 12) return "Q";
     if (numCardsToDeal == 13) return "K";
 }
 
-bool Round::checkGoOutPossible(CardCollection *hand) {
-    // one way
 
-    // sort card in hand
-    // separate joker and wildcard from cards
-    // list of possible combos
-    // pass into a recursive function
-    // done
-    // can check if go out is possible
-    bool chRun = checkRun(hand);
-    bool chBook = checkBook(hand);
-    cout << "checkRun : " << chRun << endl;
-    cout << "checkBook : " << chBook << endl;
-
+bool Round::checkGoOutPossible(CardCollection *hand, int& score, vector<vector<CardInterface*>>&minBranch) {
+	
+	
+	if (hand->isGoingOutPossible(score, minBranch)) {
+		return true; 
+	}
     return false;
 }
 
 
+void Round::startGame() {
+	if (numCardsToDeal == 10) {
+		cout << " Debug from here " << endl;
+	}
+	cout << "-----------------------" << "Round " << this->numCardsToDeal - 2 << "-----------------------------" << endl;
+	deal();
+
+	
+	cout << "DrawPile: " << DrawPile::getInstance()->toString() << endl;
+	cout << "DiscardPile: " << DiscardPile::getInstance()->toString() << endl;
+	
+	for (auto player : *dataLayer->getPlayers()) {
+		cout << "name : " << player->getName() << endl;
+		cout << "\t\thand : " << player->getHand()->toString() << endl;
+	}
+	
+	
+
+	
+	int nextPlayerIndex = 0;
+	int totalNumberOfPlayers = dataLayer->getPlayers()->size();
+	cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
+	cout << "playersGoneOut : " << playersGoneOut << endl;
+
+	cout << "----------------------------------------------------------------------------------" << endl;
+
+	while (playersGoneOut < totalNumberOfPlayers) {
+		auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
+		cout << "Next Player : " << nextPlayer->getName() << endl;
+
+		bool goOutFlag = nextPlayer->playGame();
+
+		if (this->playersGoneOut > 0) {
+			vector<vector<CardInterface*>> arrgnmnt;
+			int score;
+			forceGoOut(nextPlayer->getPlayerHand(), score, arrgnmnt);
+			cout << "Player gone out " << endl;
+			cout << "Arragement of cards while going out : ";
+			this->tempPrinter(arrgnmnt);
+			cout << "Score Player received : " << score << endl;
+			
+		}
+
+		if (goOutFlag && playersGoneOut==0) {
+			vector<vector<CardInterface*>> arrgnmnt;
+			int score;
+			bool successful = tryGoOut(nextPlayer->getPlayerHand(), score, arrgnmnt);
+			if (successful) {
+				cout << "Player successfully gone out " << endl;
+				cout << "Arragement of cards while going out : ";
+				this->tempPrinter(arrgnmnt);
+				cout << "Score Player received : " << score << endl;
+			}
+			else {
+				cout << "!!! Going out was not possible " << endl;
+			}
+		}
+
+		nextPlayerIndex = (++nextPlayerIndex) % (*dataLayer->getPlayers()).size();
+
+	}
+
+
+	cout << "--------------------------------------------------------------------------------" << endl;
+
+
+
+	// collects cards at the end of every round and puts it in the card collection
+	collectCardsFromPiles();
+
+}
+
+Round::~Round()
+{
+	// might not be needed
+}
 
