@@ -31,9 +31,14 @@ void Player::setName(string* name) {
 string Player::getName() {
     return *this->name;
 }
+//
+//void Player::setGoOutListener(IGoOut *iGoOut) {
+//    this->iGoOut = iGoOut;
+//}
 
-void Player::setGoOutListener(IGoOut *iGoOut) {
-    this->iGoOut = iGoOut;
+void Player::setSaveGameCallback(Save* iSave)
+{
+	this->iSave = iSave;
 }
 
 void Player::addToScore(int score) {
@@ -76,4 +81,14 @@ void Player::printCardsArrgmnt(vector<vector<CardInterface*>> cardsArgmnt)
 
 int Player::getScore() {
 	return this->score;
+}
+
+void Player::setPlayerHand(Hand* hand)
+{
+	this->hand = hand;
+}
+
+void Player::setScore(int score)
+{
+	this->score = score;
 }

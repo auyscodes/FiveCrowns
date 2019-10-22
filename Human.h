@@ -10,11 +10,11 @@
 
 class Human: public Player {
 public:
-    void play();
+    // void play();
 	bool playGame();
 private:
 	// void printCardsArrgmnt(vector<vector<CardInterface*>> cardsArgmnt);
-    void askToChooseCardFromDrawPileOrDiscardPile();
+    // void askToChooseCardFromDrawPileOrDiscardPile();
 
 	bool moveHelper(); // added might need to remove if doesn't work out
 

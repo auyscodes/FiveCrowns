@@ -82,6 +82,7 @@ public:
 		}
 		return false;
 	}
+	
 
 //    virtual int getValue() = 0;
 //    virtual string getFace() = 0;

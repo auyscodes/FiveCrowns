@@ -8,19 +8,23 @@
 
 #include "Player.h"
 #include "DataLayer.h"
+#include "ISave.cpp"
 #include <map>
-class Game {
+class Game: public Save{
 public:
+	Game();
     void start();
+	bool saveGame(string filename);
+	void startNew();
+	void loadGame(string filename);
 private:
-    int numRounds = 10;
+    int numRounds = 11;
     int startingAtRound = 1;
-//    vector<Player*> players;
     DataLayer* dataLayer;
-//    map<string, Player*> players;
-    void onStart();
-    void createPlayers();
+     vector<Player*>* createPlayers(int& startPlayerIndex, int&humanPlayerIndex, int&computerPlayerIndex);
 	void displayWinnerAndLoserScore();
+	static int toss(int startPlayerIndex, int totalPlayers);
+	void askUser();
 };
 
 

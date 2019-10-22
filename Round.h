@@ -16,12 +16,12 @@
 
 #include <map>
 
-class Round: public IGoOut {
+class Round {
 public:
 
 	void tempPrinter(vector<vector<CardInterface*>>& cardsArrgnment);
     Round(int round, DataLayer* dataLayer);
-    void start();
+    // void start();
     void deal();
     int getRoundNumber(){
         return this->numCardsToDeal - 2; // in round 1 we deal 3 cards
@@ -34,12 +34,16 @@ public:
 	void startGame(); // added might need to remove later if doesn't work out
 	~Round();
 
+	// static void saveGame();
+	// void toss();
 private:
+
     int numCardsToDeal;
     const int startRound = 1;
     DataLayer* dataLayer;
     int playersGoneOut = 0;
-    void setGoOutListener();
+	
+    // void setGoOutListener();
 
     int getScore(Card* card);
     string convertNumCardsToDealToWildCards(int numCardsToDeal);

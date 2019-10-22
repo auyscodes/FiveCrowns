@@ -19,6 +19,9 @@ void Round::deal() {
     if (discardPile->isEmpty()){
         // If it is a first round then builds a deck and adds to a cardcollection.
         if (numCardsToDeal - 2 == startRound) {
+
+			// toss(); // !!!!!!!! assumption human player at index 0 hardcoded 
+
             Deck deck1 = Deck::Builder().numericFace(3, 10).specialFace({"J", "Q", "K"}).suits(
                     {"C", "H", "D", "S", "T"}).joker(3).build();
             deck1.shuffle();
@@ -50,64 +53,65 @@ void Round::deal() {
 
 }
 
-void Round::start() {
-    deal();
-
-    setGoOutListener();
-    cout << "DrawPile: " << DrawPile::getInstance()->toString() << endl;
-    cout << "DiscardPile: " << DiscardPile::getInstance()->toString() << endl;
-    // cout << "CardPile: " << CardPile::getInstance()->toString() << endl;
-    for (auto player: *dataLayer->getPlayers()){
-        cout  << "name : " << player->getName() << endl;
-        cout << "\t\thand : " << player->getHand()->toString()<< endl;
-    }
-    cout << "----------------------------------------------------------------------------------" << endl;
-    // UI::showRoundState(this);
-
-    // while all the players have not gone out
-        // play
-        // if a player has gone out count the players score
-        // better set the players score
-        int nextPlayerIndex = 0;
-        int totalNumberOfPlayers = dataLayer->getPlayers()->size();
-        cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
-        cout << "playersGoneOut : "  << playersGoneOut << endl;
-
-		cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n";
-        while(playersGoneOut < totalNumberOfPlayers){
-            auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
-            cout << "Next Player : " << nextPlayer->getName() << endl;
-
-
-			// !!! Note: it is important to keep the order of this if else statement
-			// Since, if next player in the statement goes out then playersGoneOut will be automatically incremented
-			if (this->playersGoneOut > 0) {
-				nextPlayer->play();
-				// nextPlayer->addToScore(countScore(nextPlayer->getHand()));
-				vector<vector<CardInterface*>> cardsArgnmnt;
-
-				// conflict when player already goes out
-				int score;
-				forceGoOut(nextPlayer->getHand(), score, cardsArgnmnt);
-				nextPlayer->addToScore(score);
-				playersGoneOut++;
-			}
-			else {
-				nextPlayer->play();
-			}
-			nextPlayerIndex = (++nextPlayerIndex) % (*dataLayer->getPlayers()).size();
-            
-        }
-
-
-    cout << "--------------------------------------------------------------------------------" << endl;
-
-
-	
-    // collects cards at the end of every round and puts it in the card collection
-    collectCardsFromPiles();
-
-}
+//void Round::start() {
+//    deal();
+//
+//    setGoOutListener();
+//    cout << "DrawPile: " << DrawPile::getInstance()->toString() << endl;
+//    cout << "DiscardPile: " << DiscardPile::getInstance()->toString() << endl;
+//    // cout << "CardPile: " << CardPile::getInstance()->toString() << endl;
+//    for (auto player: *dataLayer->getPlayers()){
+//        cout  << "\n\t\tname : " << player->getName() << endl;
+//        cout << "\n\t\thand : " << player->getHand()->toString()<< endl;
+//		cout << "\n\t\tscore : " << player->getScore() << endl;
+//    }
+//    cout << "----------------------------------------------------------------------------------" << endl;
+//    // UI::showRoundState(this);
+//
+//    // while all the players have not gone out
+//        // play
+//        // if a player has gone out count the players score
+//        // better set the players score
+//        int nextPlayerIndex = 0;
+//        int totalNumberOfPlayers = dataLayer->getPlayers()->size();
+//        cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
+//        
+//
+//		cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n";
+//        while(playersGoneOut < totalNumberOfPlayers){
+//            auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
+//            cout << "Next Player : " << nextPlayer->getName() << endl;
+//
+//
+//			// !!! Note: it is important to keep the order of this if else statement
+//			// Since, if next player in the statement goes out then playersGoneOut will be automatically incremented
+//			if (this->playersGoneOut > 0) {
+//				nextPlayer->play();
+//				// nextPlayer->addToScore(countScore(nextPlayer->getHand()));
+//				vector<vector<CardInterface*>> cardsArgnmnt;
+//
+//				// conflict when player already goes out
+//				int score;
+//				forceGoOut(nextPlayer->getHand(), score, cardsArgnmnt);
+//				nextPlayer->addToScore(score);
+//				playersGoneOut++;
+//			}
+//			else {
+//				nextPlayer->play();
+//			}
+//			nextPlayerIndex = (++nextPlayerIndex) % (*dataLayer->getPlayers()).size();
+//            
+//        }
+//
+//
+//    cout << "--------------------------------------------------------------------------------" << endl;
+//
+//
+//	
+//    // collects cards at the end of every round and puts it in the card collection
+//    collectCardsFromPiles();
+//
+//}
 
 void Round::collectCardsFromPiles(){
 
@@ -140,8 +144,10 @@ vector<Player *> *Round::getPlayers() {
 }
 
 Round::Round(int round, DataLayer *dataLayer) {
+	
     this->numCardsToDeal = round + 2;
     this->dataLayer = dataLayer;
+
 }
 
 // checks if go out success. if success increases players gone out count, notifies other players and returns true
@@ -188,11 +194,11 @@ void Round::notifyOtherPlayers(vector<Player*>* players) {
 	}
 }
 
-void Round::setGoOutListener() {
-    for (auto player: *dataLayer->getPlayers()){
-        player->setGoOutListener(this);
-    }
-}
+//void Round::setGoOutListener() {
+//    for (auto player: *dataLayer->getPlayers()){
+//        player->setGoOutListener(this);
+//    }
+//}
 
 
 
@@ -245,9 +251,7 @@ bool Round::checkGoOutPossible(CardCollection *hand, int& score, vector<vector<C
 
 
 void Round::startGame() {
-	if (numCardsToDeal == 10) {
-		cout << " Debug from here " << endl;
-	}
+	
 	cout << "-----------------------" << "Round " << this->numCardsToDeal - 2 << "-----------------------------" << endl;
 	deal();
 
@@ -256,19 +260,19 @@ void Round::startGame() {
 	cout << "DiscardPile: " << DiscardPile::getInstance()->toString() << endl;
 	
 	for (auto player : *dataLayer->getPlayers()) {
-		cout << "name : " << player->getName() << endl;
-		cout << "\t\thand : " << player->getHand()->toString() << endl;
+		cout << "\n\t\tname : " << player->getName() << endl;
+		cout << "\n\t\thand : " << player->getHand()->toString() << endl;
+		cout << "\n\t\tscore : " << player->getScore() << endl;
 	}
 	
 	
 
-	
-	int nextPlayerIndex = 0;
+	int nextPlayerIndex = dataLayer->getNextPlayerIndex();
 	int totalNumberOfPlayers = dataLayer->getPlayers()->size();
 	cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
 	cout << "playersGoneOut : " << playersGoneOut << endl;
 
-	cout << "----------------------------------------------------------------------------------" << endl;
+	// cout << "----------------------------------------------------------------------------------" << endl;
 
 	while (playersGoneOut < totalNumberOfPlayers) {
 		auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
@@ -280,6 +284,7 @@ void Round::startGame() {
 			vector<vector<CardInterface*>> arrgnmnt;
 			int score;
 			forceGoOut(nextPlayer->getPlayerHand(), score, arrgnmnt);
+			nextPlayer->addToScore(score);
 			cout << "Player gone out " << endl;
 			cout << "Arragement of cards while going out : ";
 			this->tempPrinter(arrgnmnt);
@@ -292,6 +297,7 @@ void Round::startGame() {
 			int score;
 			bool successful = tryGoOut(nextPlayer->getPlayerHand(), score, arrgnmnt);
 			if (successful) {
+				nextPlayer->addToScore(score);
 				cout << "Player successfully gone out " << endl;
 				cout << "Arragement of cards while going out : ";
 				this->tempPrinter(arrgnmnt);
@@ -303,7 +309,7 @@ void Round::startGame() {
 		}
 
 		nextPlayerIndex = (++nextPlayerIndex) % (*dataLayer->getPlayers()).size();
-
+		dataLayer->setNextPlayerIndex(nextPlayerIndex);
 	}
 
 
@@ -320,4 +326,5 @@ Round::~Round()
 {
 	// might not be needed
 }
+
 
