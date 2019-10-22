@@ -7,40 +7,7 @@
 #include "DrawPile.h"
 #include "Computer.h"
 #include "Round.h"
-//void Human::play() {
-//    // Note: This is UI code
-//	cout << " I am human " << endl;
-//	cout << " My name is " << *(this->name) << endl;
-//    showDrawAndDiscardPile();
-//    showHand();
-//    int option;
-//    cout << "1. Save the game" << endl;
-//    cout << "2. Make a move" << endl;
-//    cout << "3. Ask for help" << endl;
-//    cout << "4. Quit the game" << endl;
-//
-//    cout << "Enter option : " ;
-//    cin >> option;
-//
-//    switch (option){
-//        case 1:
-//            cout << "Saving the game" << endl;
-//            break;
-//        case 2:
-//            askToChooseCardFromDrawPileOrDiscardPile();
-//            break;
-//        case 3:
-//            cout << "Asking for help" << endl;
-//            break;
-//        case 4:
-//            exit(EXIT_SUCCESS);
-//            break;
-//        default:
-//            exit(EXIT_FAILURE); // might need to change this later
-//
-//    }
-//
-//}
+
 bool Human::playGame() {
 	// Note: This is UI code
 	cout << " I am human " << endl;

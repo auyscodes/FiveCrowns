@@ -23,7 +23,7 @@ private:
     DataLayer* dataLayer;
      vector<Player*>* createPlayers(int& startPlayerIndex, int&humanPlayerIndex, int&computerPlayerIndex);
 	void displayWinnerAndLoserScore();
-	static int toss(int startPlayerIndex, int totalPlayers);
+	static int toss(int humanPlayerIndex, int computerPlayerIndex, int totalPlayers);
 	void askUser();
 };
 

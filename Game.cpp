@@ -28,9 +28,10 @@ vector<Player*>* Game::createPlayers(int& startPlayerIndex, int&humanPlayerIndex
     players->insert(players->begin(), human1);
     players->insert(players->begin(), human);
 
-	startPlayerIndex = 0; // since firstPlayer is human
+	
 	humanPlayerIndex = 0;
 	computerPlayerIndex = 1;
+	startPlayerIndex = humanPlayerIndex;
 	return players;
 }
 
@@ -81,7 +82,7 @@ void Game::startNew() {
 	int humanPlayerIndex;
 	int computerPlayerIndex;
 	vector<Player*>* players = createPlayers(startPlayerIndex, humanPlayerIndex, computerPlayerIndex);
-	int nextPlayer = toss(startPlayerIndex, players->size());
+	int nextPlayer = toss(humanPlayerIndex, computerPlayerIndex, players->size());
 	dataLayer = new DataLayer(players, nextPlayer, startingAtRound, humanPlayerIndex, computerPlayerIndex);
 	for (int i = 1; i <= numRounds; i++) {
 		Round* round = new Round(i, dataLayer);
@@ -107,7 +108,7 @@ bool Game::saveGame(string filename)
 {
 	cout << "in game saving" << endl;
 	Serialization::saveInFile(dataLayer, filename);
-	return false;
+	return true;
 }
 // works only for two players correctly
 void Game::displayWinnerAndLoserScore() {
@@ -134,7 +135,7 @@ void Game::displayWinnerAndLoserScore() {
 
 
 
-int Game::toss(int startPlayerIndex, int totalPlayers) {
+int Game::toss(int humanPlayerIndex, int computerPlayerIndex, int totalPlayers) {
 	cout << "--------Toss--------- " << endl;
 	cout << "Press 0 for tail or 1 for head : ";
 	int option;
@@ -149,22 +150,12 @@ int Game::toss(int startPlayerIndex, int totalPlayers) {
 	int min = 0; // tail
 	int toss = rand() % (max - min + 1) + min;
 	if (toss == option) {
-		int first_player;
-		cin.clear();
-		cin.ignore();
-		cout << "Press 1 to go first / any other number to go last : ";
-		cin >> first_player;
-		if (first_player == 1) {
-			return startPlayerIndex;
-			cout << "You are going first " << endl;
-		}
-		cout << "Computer is going first " << endl;
-		return ++startPlayerIndex% totalPlayers;
-		
+		cout << "Human won the toss" << endl;
+		return humanPlayerIndex;
 	}
-	cout << " Lost toss, computer decided to go first " << endl;
-	// computer always goes first
-	return ++startPlayerIndex % totalPlayers; // !!!!!!!!!!!!!!!!!!!!! hardcoded 
+	cout << "Computer won the toss" << endl;
+	return computerPlayerIndex ;
+	
 
 
 }

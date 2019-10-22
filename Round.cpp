@@ -53,65 +53,7 @@ void Round::deal() {
 
 }
 
-//void Round::start() {
-//    deal();
-//
-//    setGoOutListener();
-//    cout << "DrawPile: " << DrawPile::getInstance()->toString() << endl;
-//    cout << "DiscardPile: " << DiscardPile::getInstance()->toString() << endl;
-//    // cout << "CardPile: " << CardPile::getInstance()->toString() << endl;
-//    for (auto player: *dataLayer->getPlayers()){
-//        cout  << "\n\t\tname : " << player->getName() << endl;
-//        cout << "\n\t\thand : " << player->getHand()->toString()<< endl;
-//		cout << "\n\t\tscore : " << player->getScore() << endl;
-//    }
-//    cout << "----------------------------------------------------------------------------------" << endl;
-//    // UI::showRoundState(this);
-//
-//    // while all the players have not gone out
-//        // play
-//        // if a player has gone out count the players score
-//        // better set the players score
-//        int nextPlayerIndex = 0;
-//        int totalNumberOfPlayers = dataLayer->getPlayers()->size();
-//        cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
-//        
-//
-//		cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n";
-//        while(playersGoneOut < totalNumberOfPlayers){
-//            auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
-//            cout << "Next Player : " << nextPlayer->getName() << endl;
-//
-//
-//			// !!! Note: it is important to keep the order of this if else statement
-//			// Since, if next player in the statement goes out then playersGoneOut will be automatically incremented
-//			if (this->playersGoneOut > 0) {
-//				nextPlayer->play();
-//				// nextPlayer->addToScore(countScore(nextPlayer->getHand()));
-//				vector<vector<CardInterface*>> cardsArgnmnt;
-//
-//				// conflict when player already goes out
-//				int score;
-//				forceGoOut(nextPlayer->getHand(), score, cardsArgnmnt);
-//				nextPlayer->addToScore(score);
-//				playersGoneOut++;
-//			}
-//			else {
-//				nextPlayer->play();
-//			}
-//			nextPlayerIndex = (++nextPlayerIndex) % (*dataLayer->getPlayers()).size();
-//            
-//        }
-//
-//
-//    cout << "--------------------------------------------------------------------------------" << endl;
-//
-//
-//	
-//    // collects cards at the end of every round and puts it in the card collection
-//    collectCardsFromPiles();
-//
-//}
+
 
 void Round::collectCardsFromPiles(){
 
@@ -131,11 +73,6 @@ void Round::collectCardsFromPiles(){
     cardCollection->shuffle();
 
 }
-
-//map<string, Player*> & Round::getPlayers() {
-//    return this->players;
-//}
-
 
 
 
@@ -266,7 +203,7 @@ void Round::startGame() {
 	}
 	
 	
-
+	
 	int nextPlayerIndex = dataLayer->getNextPlayerIndex();
 	int totalNumberOfPlayers = dataLayer->getPlayers()->size();
 	cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
@@ -310,6 +247,10 @@ void Round::startGame() {
 
 		nextPlayerIndex = (++nextPlayerIndex) % (*dataLayer->getPlayers()).size();
 		dataLayer->setNextPlayerIndex(nextPlayerIndex);
+		cout << "***********************Score after Player's turn*********************** " << endl;
+		cout << "score of human : " << dataLayer->getPlayers()->at(dataLayer->getHumanPlayerIndex())->getScore() << endl;
+		cout << "score of computer: " << dataLayer->getPlayers()->at(dataLayer->getComputerPlayerIndex())->getScore() << endl;;
+		cout << "*********************************************************";
 	}
 
 
