@@ -8,21 +8,27 @@
 #include <iostream>
 #include "CardCollection.h"
 
+/*
+	Singleton class that stores discard pile cards
+*/
 class DiscardPile: public CardCollection {
 public:
-//    static DiscardPile* getInstance(){
-//        if (instance == NULL){
-//            instance = new DiscardPile();
-//        }
-//        return instance;
-//    };
+	/*
+		Gets the singleton instance of the class
+	*/
     static DiscardPile* getInstance();
-
+	// Do not need destructor 
+	// Active throughout the lifecycle of the program
 
 
 private:
-
+	/*
+		Constructor hidden for creating singleton
+	*/
     DiscardPile();
+	/*
+		Stores the singleton instance
+	*/
     static DiscardPile * instance;
 };
 

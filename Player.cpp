@@ -8,6 +8,7 @@
 
 Player::Player() {
     hand = new Hand();
+	
 }
 
 
@@ -31,10 +32,6 @@ void Player::setName(string* name) {
 string Player::getName() {
     return *this->name;
 }
-//
-//void Player::setGoOutListener(IGoOut *iGoOut) {
-//    this->iGoOut = iGoOut;
-//}
 
 void Player::setSaveGameCallback(Save* iSave)
 {
@@ -91,4 +88,11 @@ void Player::setPlayerHand(Hand* hand)
 void Player::setScore(int score)
 {
 	this->score = score;
+}
+
+Player::~Player()
+{
+	delete hand;
+	delete name;
+	
 }

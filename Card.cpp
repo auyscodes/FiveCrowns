@@ -5,6 +5,10 @@
 #include "Card.h"
 
 
+Card::Card()
+{
+}
+
 string Card::toString() {
     return CardInterface::getFace() + CardInterface::getSuit();
 }

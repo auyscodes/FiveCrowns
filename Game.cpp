@@ -13,19 +13,19 @@
 
 Game::Game()
 {
-	dataLayer = NULL; // value is intialized when starting a new game or loading a game 
+	dataLayer = NULL; // I feel this is unnecessary though
 }
 
 vector<Player*>* Game::createPlayers(int& startPlayerIndex, int&humanPlayerIndex, int&computerPlayerIndex) {
 	
     Human* human = new Human();
-    human->setName(new string("computer1"));
+    human->setName(new string("Human"));
 	human->setSaveGameCallback(this);
-    Computer* human1 = new Computer();
-    human1->setName(new string("computer2"));
+    Computer* computer = new Computer();
+    computer->setName(new string("Computer"));
 
     vector<Player*> * players = new vector<Player*>();
-    players->insert(players->begin(), human1);
+    players->insert(players->begin(), computer);
     players->insert(players->begin(), human);
 
 	
@@ -39,10 +39,17 @@ void Game::askUser() {
 	cout << "1. Start new game" << endl;
 	cout << "2. Load saved game" << endl;
 	int option;
-	do {
-		cout << "Enter option (1 or 2): ";
-		cin >> option;
-	} while (option < 1 && option>2);
+	cin >> option;
+	
+	while (!cin || option <1 || option>2) {
+			cout << "Please enter valid integer option: ";
+			cin.clear();
+			cin.ignore();
+			cin >> option;
+			
+	}
+		
+	
 	switch (option) {
 	case 1: {
 		startNew();
@@ -61,7 +68,7 @@ void Game::askUser() {
 	}
 		  break;
 	default:
-		break;
+		exit(EXIT_FAILURE);
 	}
 }
 
@@ -70,34 +77,35 @@ void Game::loadGame(string filename) {
 	dataLayer = Serialization::loadFromFile( filename);
 	cout << "back in game " << endl;
 	cout << " hand " << dataLayer->getPlayers()->front()->getHand()->toString() << endl;
+	dataLayer->turnIsLoadOn(); 
 	for (int i = dataLayer->getRound(); i <= numRounds; i++) {
-		Round* round = new Round(i, dataLayer);
 		dataLayer->setRound(i);
+		Round* round = new Round( dataLayer);
+		
 		round->startGame();
 	}
 
 }
+
 void Game::startNew() {
+	const int startingAtRound = 1; // startRound
 	int startPlayerIndex;
 	int humanPlayerIndex;
 	int computerPlayerIndex;
 	vector<Player*>* players = createPlayers(startPlayerIndex, humanPlayerIndex, computerPlayerIndex);
-	int nextPlayer = toss(humanPlayerIndex, computerPlayerIndex, players->size());
+	int nextPlayer = toss(humanPlayerIndex, computerPlayerIndex);
 	dataLayer = new DataLayer(players, nextPlayer, startingAtRound, humanPlayerIndex, computerPlayerIndex);
+	dataLayer->setCardCollection(); // do not forget this
 	for (int i = 1; i <= numRounds; i++) {
-		Round* round = new Round(i, dataLayer);
 		dataLayer->setRound(i);
+		Round* round = new Round( dataLayer);
+		
 		round->startGame();
 
 	}
 }
 void Game::start() {
-    // start method takes in parameter new or load
-    // if load then needs to load everything from file and put in respective objects :- drawpile, discard pile, next player, human score, computer score, etc.
-    // file input validation needs to be checked especially that discard pile should never be empty when saving game state as loading game logic depends on it
-	
-
-    // careful while changing i
+    
 	askUser();
 	
 
@@ -106,10 +114,11 @@ void Game::start() {
 }
 bool Game::saveGame(string filename)
 {
-	cout << "in game saving" << endl;
-	Serialization::saveInFile(dataLayer, filename);
-	return true;
+	
+	return Serialization::saveInFile(dataLayer, filename);
+	
 }
+
 // works only for two players correctly
 void Game::displayWinnerAndLoserScore() {
 
@@ -135,17 +144,19 @@ void Game::displayWinnerAndLoserScore() {
 
 
 
-int Game::toss(int humanPlayerIndex, int computerPlayerIndex, int totalPlayers) {
+int Game::toss(int humanPlayerIndex, int computerPlayerIndex) {
 	cout << "--------Toss--------- " << endl;
 	cout << "Press 0 for tail or 1 for head : ";
 	int option;
-	do {
-		cin.clear();
+	cin >> option;
 
+	while (!cin || option < 0 || option>1) {
+		cout << "Please enter valid integer option: ";
+		cin.clear();
+		cin.ignore();
 		cin >> option;
-		if (option > 1 && option < 0) cout << "Wrong option entered. Enter again : ";
-	} while (option < 0 && option >1);
-	// int max = dataLayer->getPlayers()->size() - 1;
+
+	}
 	int	max = 1; // head
 	int min = 0; // tail
 	int toss = rand() % (max - min + 1) + min;
@@ -158,4 +169,8 @@ int Game::toss(int humanPlayerIndex, int computerPlayerIndex, int totalPlayers) 
 	
 
 
+}
+Game::~Game()
+{
+	delete dataLayer;
 }

@@ -187,6 +187,11 @@ void Computer::helpThrow(Hand _hand, CardInterface* card) {
 	int currScore; // needed for deciding to pick from discard pile
 	vector<vector<CardInterface*>> currArrgnmnt;
 	_hand.minScoreAndBranch(currScore, currArrgnmnt);
+
+	cout << "Current hand score " << currScore << endl;
+	cout << "Current hand arrgnment "; 
+	printCardsArrgmnt(currArrgnmnt);
+
 	if (currScore == 0) {
 		cout << "I recommend you to throw " << card->toString() << " card because all the cards in your hand can be arragned to ";
 		printCardsArrgmnt(currArrgnmnt);
@@ -198,11 +203,15 @@ void Computer::helpThrow(Hand _hand, CardInterface* card) {
 	int new_score;
 	vector<vector<CardInterface*>> newArrgnmnt;
 	int index = getIndxToRmvCardAtHlpr(card, new_score, newArrgnmnt, currScore, _hand);
+	cout << "new_score " << endl;
+	cout << "new arrangement ";
+	printCardsArrgmnt(newArrgnmnt);
+
 	if (index == -1) {
 		cout << "I recommend you to throw card " << card->toString() << " because replacing any other card with the card will increase minimum score " << endl;
 		return;
 	}
-	
+	cout << "index : " << index << endl;
 	cout << "I recommed you to throw " << _hand.getCardAt(index)->toString() << " card because replacing that card with " << card->toString()
 		<< " card reduces minimum score from " << currScore << " to " << new_score << endl;
 

@@ -10,17 +10,19 @@
 
 class Human: public Player {
 public:
-    // void play();
+	// Constructor and destructor not required
+
+	// returns true if the player wants to go out
 	bool playGame();
+	
 private:
-	// void printCardsArrgmnt(vector<vector<CardInterface*>> cardsArgmnt);
-    // void askToChooseCardFromDrawPileOrDiscardPile();
-
-	bool moveHelper(); // added might need to remove if doesn't work out
-
-	void throwCard();
+	
+	bool moveHelper(); 
+	
 	void throwCardAtIndex();
-	bool goOut();
+
+	bool getCardOrGoOut(CardInterface*& pickedCard);
+	
 };
 
 

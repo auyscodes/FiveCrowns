@@ -8,12 +8,25 @@
 
 #include "CardCollection.h"
 
+/*
+	Singleton class that holds the drawpile
+*/
 class DrawPile: public CardCollection {
 public:
+	/*
+		Gets the singleton instance of the class
+	*/
     static DrawPile* getInstance();
-
+	// Do not need destructor 
+	// Active throughout the lifecycle of the program
 private:
+	/*
+		Constructor hidden for creating singleton
+	*/
     DrawPile();
+	/*
+		Stores the singleton instance
+	*/
     static DrawPile* instance;
 
 };

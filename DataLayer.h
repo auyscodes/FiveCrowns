@@ -11,9 +11,12 @@
 #include "DiscardPile.h"
 #include "CardPile.h"
 #include "Player.h"
+#include "Deck.h"
 
 class DataLayer {
 public:
+	
+
 	DataLayer(vector<Player*>* players, int nextPlayerIndex, int startRound, int humanPlayerIndex, int computerPlayerIndex) {
 		this->players = players;
 		this->nextPlayerIndex = nextPlayerIndex;
@@ -30,9 +33,21 @@ public:
         return DiscardPile::getInstance();
     }
 
-    CardCollection* getCardCollection(){
+    CardPile* getCardPile(){
         return CardPile::getInstance();
     }
+	void setCardCollection() {
+		Deck deck1 = Deck::Builder().numericFace(3, 9).specialFace({ "J", "Q", "K", "X" }).suits(
+			{ "C", "H", "D", "S", "T" }).joker(3).build();
+		deck1.shuffle();
+		Deck deck2 = Deck::Builder().numericFace(3, 9).specialFace({ "J", "Q", "K", "X" }).suits(
+			{ "C", "H", "D", "S", "T" }).joker(3).build();
+		deck2.shuffle();
+		CardPile* cardCollection = CardPile::getInstance();
+		cardCollection->collect(&deck1);
+		cardCollection->collect(&deck2);
+		cardCollection->shuffle();
+	}
     vector<Player*>* getPlayers(){
         return players;
     }
@@ -69,7 +84,18 @@ public:
 		if (nextPlayerIndex == humanPlayerIndex) return "Human";
 		if (nextPlayerIndex == computerPlayerIndex) return "Computer";
 	}
-	
+	bool isLoad() {
+		return this->_isLoad;
+	}
+	void turnIsLoadOn() {
+		this->_isLoad = true;
+	}
+	void turnIsLoadOff() {
+		this->_isLoad = false;
+	}
+	~DataLayer() {
+		delete players;
+	}
 private:
 
     vector<Player*> * players;
@@ -77,6 +103,7 @@ private:
 	int round;
 	int humanPlayerIndex;
 	int computerPlayerIndex;
+	bool _isLoad = false;
 };
 
 

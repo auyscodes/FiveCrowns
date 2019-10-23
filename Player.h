@@ -14,34 +14,29 @@
 class Player {
 public:
     Player();
-    // virtual void play() = 0;
-	virtual bool playGame() = 0; // added might need to remove later
-
+	virtual bool playGame() = 0; 
     void setCard(CardInterface* card);
     void setName(string *name);
+	void setSaveGameCallback(Save* iSave);
+	void setPlayerHand(Hand* hand);
+	void setScore(int score); 
+	void addToScore(int score);
     CardCollection* getHand();
     string getName();
-    // void setGoOutListener(IGoOut* iGoOut); // this must be made compulsory later
-
-	void setSaveGameCallback(Save* iSave);
-    void addToScore(int score);
-	
-	void playerGoOut(bool hasToGoOut); // set true when player has to go out // round should clear this while round ends
+	void playerGoOut(bool hasToGoOut); // set true when player has to go out // cleared at end of each round
 	void showDrawAndDiscardPile(); 
 	void showHand();
 	static void printCardsArrgmnt(vector<vector<CardInterface*>> cardsArgmnt);
 	Hand* getPlayerHand();
 	int getScore();
-	void setPlayerHand(Hand* hand);
-	void setScore(int score);
-	
+	~Player();
 protected:
     Hand* hand;
     string* name;
 	Save* iSave;
     int score = 0; // initially all players have
     // the score of 0
-	bool haveToGoOut = false;
+	bool haveToGoOut = false; // intially all players do not have to go out
 };
 
 

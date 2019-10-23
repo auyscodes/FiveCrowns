@@ -6,49 +6,68 @@
 #include "DataLayer.h"
 
 
+
+Round::Round(DataLayer* dataLayer) {
+
+	this->numCardsToDeal = dataLayer->getRound() + 2;
+	this->dataLayer = dataLayer;
+
+}
+
 void Round::deal() {
 
 
-    DrawPile* drawPile = DrawPile::getInstance();
+   /* DrawPile* drawPile = DrawPile::getInstance();
     DiscardPile* discardPile = DiscardPile::getInstance();
-    CardPile* cardCollection = CardPile::getInstance();
-
-
+    CardPile* cardCollection = CardPile::getInstance();*/
 
     // if discardPile isEmpty then it is a new game
-    if (discardPile->isEmpty()){
-        // If it is a first round then builds a deck and adds to a cardcollection.
-        if (numCardsToDeal - 2 == startRound) {
+    //if (discardPile->isEmpty()){
+    //    // If it is a first round then builds a deck and adds to a cardcollection.
+    //    if (numCardsToDeal - 2 == startRound) {
 
-			// toss(); // !!!!!!!! assumption human player at index 0 hardcoded 
-
-            Deck deck1 = Deck::Builder().numericFace(3, 10).specialFace({"J", "Q", "K"}).suits(
-                    {"C", "H", "D", "S", "T"}).joker(3).build();
-            deck1.shuffle();
-            Deck deck2 = Deck::Builder().numericFace(3, 10).specialFace({"J", "Q", "K"}).suits(
-                    {"C", "H", "D", "S", "T"}).joker(3).build();
-            deck2.shuffle();
+    //        Deck deck1 = Deck::Builder().numericFace(3, 9).specialFace({"J", "Q", "K", "X"}).suits(
+    //                {"C", "H", "D", "S", "T"}).joker(3).build();
+    //        deck1.shuffle();
+    //        Deck deck2 = Deck::Builder().numericFace(3, 9).specialFace({"J", "Q", "K", "X"}).suits(
+    //                {"C", "H", "D", "S", "T"}).joker(3).build();
+    //        deck2.shuffle();
 
 
-            cardCollection->collect(&deck1);
-            cardCollection->collect(&deck2);
-            cardCollection->shuffle();
+    //        cardCollection->collect(&deck1);
+    //        cardCollection->collect(&deck2);
+    //        cardCollection->shuffle();
+    //    }
+    //    
+		
+
+    //    for (int i=0;i<numCardsToDeal;i++){
+
+    //        for (auto player: *dataLayer->getPlayers()){
+    //            player->setCard(cardCollection->popFront());
+    //        }
+    //    }
+
+    //    drawPile->collect(cardCollection);
+    //    discardPile->addFront(drawPile->popFront());
+
+
+    //}
+	
+	CardPile* cardCollection = dataLayer->getCardPile();
+	// this means player started a new game 
+	cardCollection->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
+		
+	for (int i=0;i<numCardsToDeal;i++){
+
+		for (auto player: *dataLayer->getPlayers()){
+             player->setCard(cardCollection->popFront());
         }
-        // here cardCollection is always full whether it is a first round or not
-        cardCollection->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal), "X");
-        for (int i=0;i<numCardsToDeal;i++){
+	}
+	dataLayer->getDrawPile()->collect(cardCollection);
+	dataLayer->getDisCardPile()->addFront(dataLayer->getDrawPile()->popFront());
 
-            for (auto player: *dataLayer->getPlayers()){
-                player->setCard(cardCollection->popFront());
-            }
-        }
-
-        drawPile->collect(cardCollection);
-        discardPile->addFront(drawPile->popFront());
-
-
-    }
-    // don't need to setup anything in game resume. Everything is already setup.
+	
 
 
 }
@@ -57,35 +76,24 @@ void Round::deal() {
 
 void Round::collectCardsFromPiles(){
 
-    DrawPile* drawPile = DrawPile::getInstance();
-    DiscardPile* discardPile = DiscardPile::getInstance();
-    CardPile* cardCollection = CardPile::getInstance();
+	CardPile* cardCollection = dataLayer->getCardPile();
 
 
-    cardCollection->collect(drawPile);
-    cardCollection->collect(discardPile);
+    cardCollection->collect(dataLayer->getDrawPile());
+    cardCollection->collect(dataLayer->getDisCardPile());
 
 
     for (auto player:*dataLayer->getPlayers()){
         cardCollection->collect(player->getHand());
     }
-	cardCollection->undoCardsTmation(to_string(numCardsToDeal), "X");
+	
     cardCollection->shuffle();
 
 }
 
 
 
-vector<Player *> *Round::getPlayers() {
-    return this->dataLayer->getPlayers();
-}
 
-Round::Round(int round, DataLayer *dataLayer) {
-	
-    this->numCardsToDeal = round + 2;
-    this->dataLayer = dataLayer;
-
-}
 
 // checks if go out success. if success increases players gone out count, notifies other players and returns true
 // otherwise returns false
@@ -131,13 +139,6 @@ void Round::notifyOtherPlayers(vector<Player*>* players) {
 	}
 }
 
-//void Round::setGoOutListener() {
-//    for (auto player: *dataLayer->getPlayers()){
-//        player->setGoOutListener(this);
-//    }
-//}
-
-
 
 void Round::forceGoOut(CardCollection* hand, int&score, vector<vector<CardInterface*>>& branch)
 {
@@ -153,7 +154,7 @@ void Round::forceGoOut(CardCollection* hand, int&score, vector<vector<CardInterf
 
 int Round::getScore(Card* card){
     if (card->getSuit()=="J") return 50;
-    if (card->getFace() == "X") return 20;
+    if (card->isWildCard()) return 20;
 
     if (card->getFace() == "3") return 3;
     if (card->getFace() == "4") return 4;
@@ -162,15 +163,16 @@ int Round::getScore(Card* card){
     if (card->getFace() == "7") return 7;
     if (card->getFace() == "8") return 8;
     if (card->getFace() == "9") return 9;
-    if (card->getFace() == "10") return 10;
+    if (card->getFace() == "X") return 10;
     if (card->getFace() == "J") return 11;
     if (card->getFace() == "Q") return 12;
     if (card->getFace() == "K") return 13;
 
 }
-
+// change this function name to determine face of wildcard
 string Round::convertNumCardsToDealToWildCards(int numCardsToDeal) {
-    if (numCardsToDeal <= 10) return to_string(numCardsToDeal);
+    if (numCardsToDeal <= 9) return to_string(numCardsToDeal);
+	if (numCardsToDeal == 10) return "X";
     if (numCardsToDeal == 11) return "J";
     if (numCardsToDeal == 12) return "Q";
     if (numCardsToDeal == 13) return "K";
@@ -188,31 +190,56 @@ bool Round::checkGoOutPossible(CardCollection *hand, int& score, vector<vector<C
 
 
 void Round::startGame() {
-	
-	cout << "-----------------------" << "Round " << this->numCardsToDeal - 2 << "-----------------------------" << endl;
-	deal();
 
+	cout << "-----------------------" << "Round " << dataLayer->getRound() << "-----------------------------" << endl;
+	if (!dataLayer->isLoad()) {
+		deal();
+	}
+	if (dataLayer->isLoad()) {
+		cout << "loading game " << endl;
+		// need to transform all the cards to wilcards
+
+		vector<Player*>* players = dataLayer->getPlayers();
+		Player* player1 = players->front();
+		Player* player2 = players->back();
+		CardCollection* p1hand = player1->getHand();
+		p1hand->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
+		CardCollection* p2hand = player2->getHand();
+		p2hand->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
+		
+
+		CardCollection* drawPile = dataLayer->getDrawPile();
+		CardCollection* discardPile = dataLayer->getDisCardPile();
+		drawPile->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
+		drawPile->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
+		
+		
+	}
 	
+
 	cout << "DrawPile: " << DrawPile::getInstance()->toString() << endl;
 	cout << "DiscardPile: " << DiscardPile::getInstance()->toString() << endl;
-	
+
 	for (auto player : *dataLayer->getPlayers()) {
+
 		cout << "\n\t\tname : " << player->getName() << endl;
 		cout << "\n\t\thand : " << player->getHand()->toString() << endl;
 		cout << "\n\t\tscore : " << player->getScore() << endl;
+
 	}
-	
-	
-	
+
+
+
 	int nextPlayerIndex = dataLayer->getNextPlayerIndex();
 	int totalNumberOfPlayers = dataLayer->getPlayers()->size();
-	cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
-	cout << "playersGoneOut : " << playersGoneOut << endl;
 
-	// cout << "----------------------------------------------------------------------------------" << endl;
+
+	cout << "totalNumberOfPlayers : " << totalNumberOfPlayers << endl;
+	// cout << "playersGoneOut : " << playersGoneOut << endl;
 
 	while (playersGoneOut < totalNumberOfPlayers) {
 		auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
+
 		cout << "Next Player : " << nextPlayer->getName() << endl;
 
 		bool goOutFlag = nextPlayer->playGame();
@@ -222,50 +249,62 @@ void Round::startGame() {
 			int score;
 			forceGoOut(nextPlayer->getPlayerHand(), score, arrgnmnt);
 			nextPlayer->addToScore(score);
+
+
 			cout << "Player gone out " << endl;
 			cout << "Arragement of cards while going out : ";
 			this->tempPrinter(arrgnmnt);
 			cout << "Score Player received : " << score << endl;
-			
+
+
+
 		}
 
-		if (goOutFlag && playersGoneOut==0) {
+		if (goOutFlag && playersGoneOut == 0) {
 			vector<vector<CardInterface*>> arrgnmnt;
 			int score;
 			bool successful = tryGoOut(nextPlayer->getPlayerHand(), score, arrgnmnt);
 			if (successful) {
 				nextPlayer->addToScore(score);
+
+
 				cout << "Player successfully gone out " << endl;
 				cout << "Arragement of cards while going out : ";
 				this->tempPrinter(arrgnmnt);
 				cout << "Score Player received : " << score << endl;
+
+
 			}
 			else {
+
 				cout << "!!! Going out was not possible " << endl;
 			}
 		}
 
 		nextPlayerIndex = (++nextPlayerIndex) % (*dataLayer->getPlayers()).size();
 		dataLayer->setNextPlayerIndex(nextPlayerIndex);
-		cout << "***********************Score after Player's turn*********************** " << endl;
+
+
+		/*cout << "***********************Score after each Player's turn*********************** " << endl;
 		cout << "score of human : " << dataLayer->getPlayers()->at(dataLayer->getHumanPlayerIndex())->getScore() << endl;
 		cout << "score of computer: " << dataLayer->getPlayers()->at(dataLayer->getComputerPlayerIndex())->getScore() << endl;;
-		cout << "*********************************************************";
+		cout << "*********************************************************" << endl;*/
 	}
 
 
 	cout << "--------------------------------------------------------------------------------" << endl;
 
 
-
+	for (auto player : *dataLayer->getPlayers()) {
+		player->playerGoOut(false); // cleared at round end
+	}
 	// collects cards at the end of every round and puts it in the card collection
 	collectCardsFromPiles();
+	dataLayer->getCardPile()->undoCardsTmation();
+	dataLayer->turnIsLoadOff();
 
 }
 
-Round::~Round()
-{
-	// might not be needed
-}
+
 
 
