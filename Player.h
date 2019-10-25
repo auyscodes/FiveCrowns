@@ -6,8 +6,8 @@
 #define FIVECROWNS_PLAYER_H
 
 
-#include "Hand.h"
 
+#include "CardCollection.h"
 #include "ISave.cpp"
 #include <iostream>
 #include <algorithm>
@@ -16,27 +16,24 @@ public:
     Player();
 	virtual bool playGame() = 0; 
     void setCard(CardInterface* card);
-    void setName(string *name);
+    void setName(string name);
 	void setSaveGameCallback(Save* iSave);
-	void setPlayerHand(Hand* hand);
+	void setPlayerHand(CardCollection* hand);
 	void setScore(int score); 
 	void addToScore(int score);
-    CardCollection* getHand();
+    CardCollection* getHand() const;
     string getName();
-	void playerGoOut(bool hasToGoOut); // set true when player has to go out // cleared at end of each round
+	void playerGoOut(bool hasToGoOut); 
 	void showDrawAndDiscardPile(); 
 	void showHand();
-	static void printCardsArrgmnt(vector<vector<CardInterface*>> cardsArgmnt);
-	Hand* getPlayerHand();
 	int getScore();
 	~Player();
 protected:
-    Hand* hand;
-    string* name;
+    CardCollection* hand;
+	string name;
 	Save* iSave;
-    int score = 0; // initially all players have
-    // the score of 0
-	bool haveToGoOut = false; // intially all players do not have to go out
+    int score = 0;
+	bool haveToGoOut = false;
 };
 
 

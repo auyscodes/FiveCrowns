@@ -4,3 +4,5 @@
 
 #include "DataLayer.h"
 
+// Class contains only getter and setter functions
+// See .cpp file for documentation

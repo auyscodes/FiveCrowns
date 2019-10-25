@@ -18,10 +18,7 @@ using namespace std;
 
 class Card: public CardInterface{
 public:
-	/*
-		Constructor
-	*/
-	Card();
+	// Default constructor not required 
 	/*
 		Virtual function implementation of CardInterface
 	*/

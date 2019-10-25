@@ -28,11 +28,15 @@ public:
     static class Builder{
     public:
 		/*
-			Takes range of numeric face
-			For five crowns numeric face begins at 3 and ends at 10
-			@param begin beginning of numeric face, inclusive (3 for this project)
-			@param end of numeric face, inclusive (10 for this project)
-			@return Object of type Deck::Builder
+		Function Name: numericFace
+		Purpose: set the numeric faces in deck that begins at 3 and ends at 9
+		Parameters: begin, beginning of numeric face, inclusive (3 for this project)
+					end, end of numeric face, inclusive (10 for this project)
+		Return Value: Builder object, object that builds deck
+		Local Variables: none
+		Algorithm: none
+		Assistance Received: none
+
 		*/
         Builder numericFace(int begin, int end){
                this->begin = begin;
@@ -40,70 +44,64 @@ public:
                return *this;
         }
 		/*
-			Takes Jack, Queen, King etc face cards
-			
-			@param special_face collection of special faces
-			@return Object of type Deck::Builder
+		Function Name: specialFace
+		Purpose: set the special faces in deck like Jack, Queen, King, etc.
+		Parameters: special_face, collection of special_faces
+		Return Value: Builder object, object that builds deck
+		Local Variables: none
+		Algorithm: none
+		Assistance Received: none
+
 		*/
         Builder specialFace(vector<string> special_face){
             this->special_face = special_face;
             return *this;
         }
 		/*
-			Takes Hearts, Spades, Diamonds, Tridents, etc suits
-			@param _suits collection of suits
-			@return Object of type Deck::Builder
+		Function Name: suits
+		Purpose: set the suits to build a deck
+		Parameters: _suits, collection of string representing hearts, diamonds, etc.
+		Return Value: Builder object, object that builds deck
+		Local Variables: none
+		Algorithm: none
+		Assistance Received: none
+
 		*/
         Builder suits(vector<string> _suits){
             this->_suits = _suits;
             return *this;
         }
+		
 		/*
-			Number of jokers to build starting at face 1 
-			@param numJokers Number of jokers 
-			@return Object of type Deck::Builder
+		Function Name: joker
+		Purpose: set the number of joker to build a deck
+		Parameters: numJokers, number of jokers in a deck
+		Return Value: Builder object, object that builds deck
+		Local Variables: none
+		Algorithm: none
+		Assistance Received: none
+
 		*/
         Builder joker(int numJokers){
             this->numJokers = numJokers;
             return *this;
         }
-		/*
-			Builds and returns deck object
-			@exception Throws exception if builder is not properly initialized
-			@return Object of type deck
-		*/
-        Deck build(){
-            Deck* deck = new Deck();
-            if (_suits.empty() || (special_face.empty() && (begin==NULL || end==NULL))) throw "Deck properly not initialized";
-            for (auto _suit: _suits){
-                for (auto i=begin;i<=end;i++){
-                    CardInterface* card = new Card();
-                    card->setFace(to_string(i));
-                    card->setSuit(_suit);
-                    deck->addFront(card);
-                }
-                for (auto sp_face: special_face){
-                    CardInterface* card = new Card();
-                    card->setFace(sp_face);
-                    card->setSuit(_suit);
-                    deck->addFront(card);
-                }
-            }
-            for (auto i=1;i<=numJokers;i++){
-                CardInterface * card = new Joker();
-                card->setFace(to_string(i));
-                card->setSuit("J");
-                deck->addFront(card);
-            }
-            return *deck;
-        }
+		
+		Deck build(); 
+            
+        
 
     private:
-        int begin; // beginning of numeric face e.g 3 for five crowns
-        int end; // end of face numeric face e.g. 10 for five crowns
-        vector<string> special_face; // J,Q, K etc. faces
-        vector<string> _suits; // H (hearts), D(diamonds), T(tridents) faces
-        int numJokers; // number of Jokers
+		// beginning of numeric face e.g 3 for five crowns
+        int begin; 
+		// end of face numeric face e.g. 10 for five crowns
+        int end; 
+		// J,Q, K etc. faces
+        vector<string> special_face; 
+		// H (hearts), D(diamonds), T(tridents) faces
+        vector<string> _suits; 
+		// number of Jokers
+        int numJokers;
     };
 
 
@@ -112,7 +110,3 @@ public:
 
 #endif //FIVECROWNS_DECK_H
 
-/*
- * Once the deck is build no adding or removing
- *
- * */

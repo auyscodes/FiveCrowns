@@ -6,7 +6,22 @@
 #include "DataLayer.h"
 
 
+/*
+Function Name: Round
+Purpose: Represent a round in game.
+		Constructor.
+		Sets number of cards to deal.
+		Sets dataLayer object.
+		
+Parameters:
+			dataLayer, pointer to DataLayer class. dataLayer is the model in MVC
+			of the game.
+Return Value: Object of the class
+Local Variables: none
+Algorithm: none
+Assistance Received: none
 
+*/
 Round::Round(DataLayer* dataLayer) {
 
 	this->numCardsToDeal = dataLayer->getRound() + 2;
@@ -14,47 +29,25 @@ Round::Round(DataLayer* dataLayer) {
 
 }
 
+/*
+Function Name: deal
+Purpose: Deals the cards to players. Puts cards in draw pile and discard pile.
+		Transforms wildcard for the round before dealing
+Parameters: none
+Return Value: none
+Local Variables:
+			cardCollection, pointer to object that holds the two decks.
+Algorithm: 
+			1. Distribute cards to players in a circular fashion
+			2. Put the remaining cards in drawPile
+			3. Put the top card from the drawPile in discardPile.
+Assistance Received: none
+
+*/
 void Round::deal() {
 
-
-   /* DrawPile* drawPile = DrawPile::getInstance();
-    DiscardPile* discardPile = DiscardPile::getInstance();
-    CardPile* cardCollection = CardPile::getInstance();*/
-
-    // if discardPile isEmpty then it is a new game
-    //if (discardPile->isEmpty()){
-    //    // If it is a first round then builds a deck and adds to a cardcollection.
-    //    if (numCardsToDeal - 2 == startRound) {
-
-    //        Deck deck1 = Deck::Builder().numericFace(3, 9).specialFace({"J", "Q", "K", "X"}).suits(
-    //                {"C", "H", "D", "S", "T"}).joker(3).build();
-    //        deck1.shuffle();
-    //        Deck deck2 = Deck::Builder().numericFace(3, 9).specialFace({"J", "Q", "K", "X"}).suits(
-    //                {"C", "H", "D", "S", "T"}).joker(3).build();
-    //        deck2.shuffle();
-
-
-    //        cardCollection->collect(&deck1);
-    //        cardCollection->collect(&deck2);
-    //        cardCollection->shuffle();
-    //    }
-    //    
-		
-
-    //    for (int i=0;i<numCardsToDeal;i++){
-
-    //        for (auto player: *dataLayer->getPlayers()){
-    //            player->setCard(cardCollection->popFront());
-    //        }
-    //    }
-
-    //    drawPile->collect(cardCollection);
-    //    discardPile->addFront(drawPile->popFront());
-
-
-    //}
 	
-	CardPile* cardCollection = dataLayer->getCardPile();
+	CardCollection* cardCollection = dataLayer->getCardPile();
 	// this means player started a new game 
 	cardCollection->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
 		
@@ -66,17 +59,28 @@ void Round::deal() {
 	}
 	dataLayer->getDrawPile()->collect(cardCollection);
 	dataLayer->getDisCardPile()->addFront(dataLayer->getDrawPile()->popFront());
-
-	
-
-
 }
 
 
+/*
+Function Name: collectCardsFromPiles
+Purpose: Collect cards from drawPile, discardPile and all the hand of all the players
+		and put it back on the cardCollection
+		Undoes wildcard transformation for the next round
+Parameters: none
+Return Value: none
+Local Variables:
+			cardCollection, pointer to object that holds the two decks.
+Algorithm:
+			1. Collect card from DrawPile
+			2. Collect card from DiscardPile
+			3. Collect card from hand of all the players
+Assistance Received: none
 
+*/
 void Round::collectCardsFromPiles(){
 
-	CardPile* cardCollection = dataLayer->getCardPile();
+	CardCollection* cardCollection = dataLayer->getCardPile();
 
 
     cardCollection->collect(dataLayer->getDrawPile());
@@ -88,6 +92,7 @@ void Round::collectCardsFromPiles(){
     }
 	
     cardCollection->shuffle();
+	cardCollection->undoCardsTmation();
 
 }
 
@@ -95,17 +100,28 @@ void Round::collectCardsFromPiles(){
 
 
 
-// checks if go out success. if success increases players gone out count, notifies other players and returns true
-// otherwise returns false
-bool Round::tryGoOut(Hand* hand, int& score, vector<vector<CardInterface*>>& cardsArrgnmnt) {
-	Hand new_hand = *hand; // so that hand is copied and not modified
-		if (checkGoOutPossible(&new_hand, score, cardsArrgnmnt)) {
-			/*cout << "Inside rounds try go out " << endl;
+/*
+Function Name: tryGoOut
+Purpose: Check if a player can go out with current set of cards in thier hand.
+		Notify other players that a player has gone out.
+		Keep track of number of players that have successfully gone out.
+Parameters: 
+			hand, hand of the player
+			score, a reference to minimum score the player can receive
+					for the hand
+			cardsArrgnmnt, a reference to a vector of vector of cards.
+				The vector holds the best possible way the 
+Return Value: bool, true if a player successfully went out. false otherwise
+Local Variables: none
+Algorithm:
+			Check if go out possible.
+			If possible notify other players
+Assistance Received: none
 
-			cout << "score : " << score << endl;
+*/
+bool Round::tryGoOut(CardCollection hand, int& score, vector<vector<CardInterface*>>& cardsArrgnmnt) {
+		if (checkGoOutPossible(hand, score, cardsArrgnmnt)) {
 			
-			cout << "Cards Arrangement : ";
-			tempPrinter(cardsArrgnmnt);*/
 
 			this->playersGoneOut++;
 			notifyOtherPlayers(this->dataLayer->getPlayers());
@@ -117,8 +133,20 @@ bool Round::tryGoOut(Hand* hand, int& score, vector<vector<CardInterface*>>& car
 
 
 
+/*
+Function Name: printCardArrangement
+Purpose: Prints vector of vector of card in certain format
+		 E.g. of the format is [ [ J1 3S 4S ] [ 5D ] ]
+Parameters: cardsArrangements, collection of collection of cards
+			
+Return Value: none
+Local Variables: none
+Algorithm: 
+		1. For each collection of cards, print all the cards
+Assistance Received: none
 
-void Round::tempPrinter(vector < vector<CardInterface*>> & cardsArrgnment) {
+*/
+void Round::printCardsArrangement(const vector < vector<CardInterface*>> & cardsArrgnment) {
 	cout << " [ ";
 	for (auto elem : cardsArrgnment) {
 		cout << " [ ";
@@ -130,46 +158,66 @@ void Round::tempPrinter(vector < vector<CardInterface*>> & cardsArrgnment) {
 	cout << " ] ";
 }
 
-// right now notifies all the players even the  one that just go out
-void Round::notifyOtherPlayers(vector<Player*>* players) {
-	vector<Player*>& playersRef = *players;
+/*
+Function Name: notifyOtherPlayers
+Purpose: To notify other players that a player has gone out
+		Note: Function not used now. This was created with
+		the intention to improve logic.
+Parameters: players, constant reference to vector of players
+
+Return Value: none
+Local Variables: none
+Algorithm:
+		none
+Assistance Received: none
+
+*/
+void Round::notifyOtherPlayers(const vector<Player*>* players) {
+	// vector<Player*>& playersRef = *players;
 	for (int i = 0; i < players->size(); i++) {
-		Player* player = playersRef[i];
-		player->playerGoOut(true);
+		players->at(i)->playerGoOut(true);
+
+		/*Player* player = playersRef[i];
+		player->playerGoOut(true);*/
 	}
 }
 
+/*
+Function Name: forceGoOut
+Purpose: Calculate mimimum score and best possible arrangement of cards
+		for the hand. Increase count of number of players that have gone
+		out for the current round and notify other players.
+Parameters: hand, a copy of the hand of the player after they finish playing.
+			score, a reference to mimimum score player received
+			branch, a reference to best possible arrangement of cards
+				for the mimimum score the player receives
 
-void Round::forceGoOut(CardCollection* hand, int&score, vector<vector<CardInterface*>>& branch)
-{
-	CardCollection new_hand = *hand; // so that hand is copied and not modified 
+Return Value: none
+Local Variables: none
+Algorithm: none
+Assistance Received: none
 
-	new_hand.minScoreAndBranch(score, branch);
+*/
+void Round::forceGoOut(CardCollection hand, int&score, vector<vector<CardInterface*>>& branch)
+{ 
+	hand.minScoreAndBranch(score, branch);
 	this->playersGoneOut++;
 	notifyOtherPlayers(this->dataLayer->getPlayers());
 
 }
 
 
+/*
+Function Name: convertNumCardsToDealToWildCards
+Purpose: To determine face of the wildcard
+Parameters: numCardsToDeal, number of cards dealt in the current round
 
-int Round::getScore(Card* card){
-    if (card->getSuit()=="J") return 50;
-    if (card->isWildCard()) return 20;
+Return Value: face of the wildcard in the form of string
+Local Variables: none
+Algorithm: none
+Assistance Received: none
 
-    if (card->getFace() == "3") return 3;
-    if (card->getFace() == "4") return 4;
-    if (card->getFace() == "5") return 5;
-    if (card->getFace() == "6") return 6;
-    if (card->getFace() == "7") return 7;
-    if (card->getFace() == "8") return 8;
-    if (card->getFace() == "9") return 9;
-    if (card->getFace() == "X") return 10;
-    if (card->getFace() == "J") return 11;
-    if (card->getFace() == "Q") return 12;
-    if (card->getFace() == "K") return 13;
-
-}
-// change this function name to determine face of wildcard
+*/
 string Round::convertNumCardsToDealToWildCards(int numCardsToDeal) {
     if (numCardsToDeal <= 9) return to_string(numCardsToDeal);
 	if (numCardsToDeal == 10) return "X";
@@ -178,47 +226,77 @@ string Round::convertNumCardsToDealToWildCards(int numCardsToDeal) {
     if (numCardsToDeal == 13) return "K";
 }
 
+/*
+Function Name: checkGoOutPossible
+Purpose: Check if a player can go out with the hand passed.
+		Lets the calling function know  mimium score that a player
+		receives and  best possible arrangement for the score 
+		player receives through respective parameters passed as reference
+Parameters: hand, a copy of the hand of the player after they finish playing.
+			score, a reference to mimimum score player receives
+			minBranch, a reference to best possible arrangement of cards
+				for the mimimum score the player receives
 
-bool Round::checkGoOutPossible(CardCollection *hand, int& score, vector<vector<CardInterface*>>&minBranch) {
+Return Value: bool, true if cards in hand result in the score of 0
+Local Variables: none
+Algorithm: none
+Assistance Received: none
+
+*/
+bool Round::checkGoOutPossible(CardCollection hand, int& score, vector<vector<CardInterface*>>&minBranch) {
 	
 	
-	if (hand->isGoingOutPossible(score, minBranch)) {
+	if (hand.isGoingOutPossible(score, minBranch)) {
 		return true; 
 	}
     return false;
 }
 
+/*
+Function Name: startGame
+Purpose: Executes a round. A driver function for the round.
+Parameters: none
+Return Value: none
+Local Variables: none
+Algorithm: 
+		1. If the game was loaded from file then transform all the cards to wildcards.
+		2. If the game was not loaded deal cards from files and transform cards.
+		3. Print information about the round
+		4. Loop while the numberOfPlayers have gone out is less than total 
+			number of players.
 
+			Inside the loop: 
+				If one of the players has gone out then force all the other 
+				players to go out
+				If the player wants to go out try if the player can go out. Notify other players for successful going out.
+					Otherwise, let the player know that they cannot go out.
+		5. Unset player has to go out.
+		6. Collect cards from hand of the players, drawpile and discardPile.
+		7. Undo wildcard transformations.
+
+Assistance Received: none
+
+*/
 void Round::startGame() {
 
 	cout << "-----------------------" << "Round " << dataLayer->getRound() << "-----------------------------" << endl;
 	if (!dataLayer->isLoad()) {
+		
 		deal();
 	}
 	if (dataLayer->isLoad()) {
-		cout << "loading game " << endl;
-		// need to transform all the cards to wilcards
-
-		vector<Player*>* players = dataLayer->getPlayers();
-		Player* player1 = players->front();
-		Player* player2 = players->back();
-		CardCollection* p1hand = player1->getHand();
-		p1hand->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
-		CardCollection* p2hand = player2->getHand();
-		p2hand->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
-		
-
-		CardCollection* drawPile = dataLayer->getDrawPile();
-		CardCollection* discardPile = dataLayer->getDisCardPile();
-		drawPile->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
-		drawPile->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
-		
-		
+		// just transforms cards in hand of players, discard pile and drawpile
+		// to wild card
+		// can make a function that transforms all the card piles
+		dataLayer->getPlayers()->front()->getHand()->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
+		dataLayer->getPlayers()->front()->getHand()->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
+		dataLayer->getDisCardPile()->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));
+		dataLayer->getDrawPile()->transformCards(convertNumCardsToDealToWildCards(numCardsToDeal));		
 	}
 	
-
-	cout << "DrawPile: " << DrawPile::getInstance()->toString() << endl;
-	cout << "DiscardPile: " << DiscardPile::getInstance()->toString() << endl;
+	// print information about round
+	cout << "DrawPile: " << dataLayer->getDrawPile()->toString() << endl;
+	cout << "DiscardPile: " << dataLayer->getDisCardPile()->toString() << endl;
 
 	for (auto player : *dataLayer->getPlayers()) {
 
@@ -238,7 +316,7 @@ void Round::startGame() {
 	// cout << "playersGoneOut : " << playersGoneOut << endl;
 
 	while (playersGoneOut < totalNumberOfPlayers) {
-		auto nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
+		Player* nextPlayer = (*dataLayer->getPlayers())[nextPlayerIndex];
 
 		cout << "Next Player : " << nextPlayer->getName() << endl;
 
@@ -247,13 +325,13 @@ void Round::startGame() {
 		if (this->playersGoneOut > 0) {
 			vector<vector<CardInterface*>> arrgnmnt;
 			int score;
-			forceGoOut(nextPlayer->getPlayerHand(), score, arrgnmnt);
+			forceGoOut(*nextPlayer->getHand(), score, arrgnmnt);
 			nextPlayer->addToScore(score);
 
 
 			cout << "Player gone out " << endl;
 			cout << "Arragement of cards while going out : ";
-			this->tempPrinter(arrgnmnt);
+			printCardsArrangement(arrgnmnt);
 			cout << "Score Player received : " << score << endl;
 
 
@@ -263,14 +341,14 @@ void Round::startGame() {
 		if (goOutFlag && playersGoneOut == 0) {
 			vector<vector<CardInterface*>> arrgnmnt;
 			int score;
-			bool successful = tryGoOut(nextPlayer->getPlayerHand(), score, arrgnmnt);
+			bool successful = tryGoOut(*nextPlayer->getHand(), score, arrgnmnt);
 			if (successful) {
 				nextPlayer->addToScore(score);
 
 
 				cout << "Player successfully gone out " << endl;
 				cout << "Arragement of cards while going out : ";
-				this->tempPrinter(arrgnmnt);
+				this->printCardsArrangement(arrgnmnt);
 				cout << "Score Player received : " << score << endl;
 
 
@@ -285,23 +363,21 @@ void Round::startGame() {
 		dataLayer->setNextPlayerIndex(nextPlayerIndex);
 
 
-		/*cout << "***********************Score after each Player's turn*********************** " << endl;
-		cout << "score of human : " << dataLayer->getPlayers()->at(dataLayer->getHumanPlayerIndex())->getScore() << endl;
-		cout << "score of computer: " << dataLayer->getPlayers()->at(dataLayer->getComputerPlayerIndex())->getScore() << endl;;
-		cout << "*********************************************************" << endl;*/
+		
+		// collects cards at the end of every round and puts it in the card collection
+		
+		
+		
+
 	}
-
-
-	cout << "--------------------------------------------------------------------------------" << endl;
-
 
 	for (auto player : *dataLayer->getPlayers()) {
 		player->playerGoOut(false); // cleared at round end
 	}
-	// collects cards at the end of every round and puts it in the card collection
 	collectCardsFromPiles();
-	dataLayer->getCardPile()->undoCardsTmation();
 	dataLayer->turnIsLoadOff();
+	cout << "--------------------------------------------------------------------------------" << endl;
+
 
 }
 

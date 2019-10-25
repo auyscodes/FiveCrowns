@@ -9,11 +9,13 @@
 #include "CardInterface.h"
 
 /*
- * Joker card has suit joker and face as 1,2 and 3 for this
- * project*/
+ * Card of type Joker is represented by saving as suit J in the project.
+	The number of joker ie. 1 in J1 is represented as face in the game.
+	project*/
 
 class Joker: public CardInterface {
 public:
+	
     string toString();
     string getFace();
     string getSuit();

@@ -133,7 +133,7 @@ public:
 	*/
 
 	bool isSpecialCard() {
-		if (this->suit == "J" || this->isWCard==true) {
+		if (this->isJoker() == true || this->isWCard==true) {
 			return true;
 		}
 		return false;
@@ -149,7 +149,14 @@ public:
 		this->isWCard = false;
 	}
 
-
+	static bool isJoker(string _card) {
+		if (_card == "J1" || _card == "J2" || _card == "J3") return true;
+		return false;
+	}
+	bool isJoker() {
+		if (this->toString() == "J1" || this->toString() == "J2" || this->toString() == "J3") return true;
+		return false;
+	}
 private:
     string suit;
     string face;

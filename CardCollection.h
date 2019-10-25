@@ -5,85 +5,181 @@
 #ifndef FIVECROWNS_CARDCOLLECTION_H
 #define FIVECROWNS_CARDCOLLECTION_H
 
+
 #include <random>
 #include <vector>
 #include "CardInterface.h"
 #include <algorithm>
 #include <iostream>
-#include "CompareCardByValue.h"
+
 #include <map>
 
-// Note: All the functions are implemented here 
-// No cpp file present
+// Note: This class is not fully commented out yet.
 class CardCollection{
 
 public:
-
+	/*
+	Function Name: addFront
+	Purpose: Adds the card to the front of the collection
+	Parameters: card, pointer to abstract class representing a card
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     void addFront(CardInterface* card){
         this->collection.insert(collection.begin(), card);
     }
-
+	/*
+	Function Name: addBack
+	Purpose: Adds the card to the back of the collection
+	Parameters: card, pointer to abstract class representing a card
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     void addBack(CardInterface* card) {
         this->collection.insert(collection.end(), card);
     }
-
+	/*
+	Function Name: getFront
+	Purpose: gets the card from the front of the collection
+	Parameters: none
+	Return Value: card, pointer to abstract class representing a card
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     CardInterface* getFront(){
         return *collection.begin();
     }
-
+	/*
+	Function Name: getBack
+	Purpose: gets the card from the back of the collection
+	Parameters: none
+	Return Value: card, pointer to abstract class representing a card
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     CardInterface* getBack(){
         return *(collection.begin() + collection.size());
     }
-
+	/*
+	Function Name: popFront
+	Purpose: gets the card from the front of the collection and removes it
+	Parameters: none
+	Return Value: card, pointer to abstract class representing a card
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     CardInterface* popFront(){
         CardInterface* card = *(collection.begin());
         collection.erase(collection.begin());
         return card;
     }
+	/*
+	Function Name: getBack
+	Purpose: gets the card from the back of the collection and removes it
+	Parameters: none
+	Return Value: card, pointer to abstract class representing a card
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     CardInterface * popBack(){
         CardInterface * card = *(collection.begin() + collection.size());
         collection.erase(collection.begin()+ collection.size());
         return card;
     }
-
+	/*
+	Function Name: isEmpty
+	Purpose: checks if the collection is empty
+	Parameters: none
+	Return Value: bool, true if the collection is empty otherwise false
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     bool isEmpty(){
         return collection.empty() || false;
     }
+	/*
+	Function Name: getSize
+	Purpose: gets the size of the collection
+	Parameters: none
+	Return Value: size of the collection
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     int getSize(){
         return collection.size();
     }
-	// returns card at the index. Does not remove card
+	/*
+	Function Name: getCardAt
+	Purpose: gets card at certain position in the collection
+	Parameters: position, index of the card in the collection
+	Return Value: card, pointer to abstract class representing a card
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     CardInterface*  getCardAt(int position){
         return collection[position];
     }
 
-    // removes a card permanently and also returns that card
+	/*
+	Function Name: popCardAt
+	Purpose: gets card at certain position in the collection and permanently removes it
+	Parameters: position, index of the card in the collection
+	Return Value: card, pointer to abstract class representing a card
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     CardInterface* popCardAt(int position){
         CardInterface* card = *(collection.begin() + position);
         collection.erase(collection.begin() + position);
         return card;
     }
-
+	/*
+	Function Name: addCardAt
+	Purpose: adds card at certain index in the collection
+	Parameters: position, index where the card is inserted in the collection
+				card, pointer to abstract class representing a card
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
 	void addCardAt(int position, CardInterface* card) {
 		collection.insert(collection.begin() + position, card);
 	}
-
-    // Function uses overloaded operator (equals to)= need to check if (equals to)= handles wild card and joker or not
-    CardInterface* popCard(CardInterface * card){
-        for (int i=0;i<collection.size();i++){
-            if (collection[i] == card){
-                CardInterface * temp = collection[i];
-                collection.erase(collection.begin() + i);
-                return temp;
-            }
-        }
-    }
-
+	/*
+	Function Name: shuffle
+	Purpose: shuffle the cards in the collection
+	Parameters: none
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     void shuffle(){
         std::shuffle(collection.begin(), collection.end(), std::mt19937(std::random_device()()));
     }
 
-
+	/*
+	Function Name: collect
+	Purpose: collect all the cars in another collection
+	Parameters: cardCollection, pointer to object that represents collection of cards 
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
 
     void collect(CardCollection* cardCollection){
         int size = cardCollection->getSize(); // !!! important to put cardcollection size in a variable otherwise will get error
@@ -91,18 +187,47 @@ public:
             collection.push_back(cardCollection->popFront());
         }
     }
+
+	/*
+	Function Name: transformCards
+	Purpose: Converts cards with certain face to wildcard in the collection
+	Parameters: face, face of the cards that needs to be converted to wildcard
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     void transformCards(string face){
         // since Joker is of suit J and has 1 2 3 . Conflicts with regular 3 card. So have to check. Could make Joker start at 0 1 and 2 for ease
         for (auto card: this->collection){
 			if (card->getFace() == face && card->getSuit() != "J") card->makeWildCard();
         }
     }
+	/*
+	Function Name: undoCardsTmation
+	Purpose: Undoes transformation of any cards converted to wildcard in the collection
+	Parameters: face, face of the cards that needs to be converted to wildcard
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
 	void undoCardsTmation() {
 		for (auto card : this->collection) {
 			if (card->isWildCard()) card->unmakeWildCard();
 		}
 	}
-
+	/*
+	Function Name: separateNormalFromSpecialCards
+	Purpose: Separating normal and special cards. Special cards are jokers and wildcards.
+			All the other cards are normal cards.
+	Parameters: none
+	Return Value: separated collections of normal and special cards in a collection
+	Local Variables: normalCards, collection of cards that stores normal cards( cards which are not special cards)
+					specialCards, collection of cards that stores special cards (jokers and wildcards)
+	Algorithm: none
+	Assistance Received: none
+	*/
     vector<CardCollection*> separateNormalCardsFromOthers(){
         CardCollection* normalCards = new CardCollection();
         CardCollection* specialCards = new CardCollection();
@@ -117,20 +242,38 @@ public:
         return {normalCards, specialCards};
     }
 
-	
+	/*
+	Function Name: toString
+	Purpose: Converts the cards collection to string
+	Parameters: none
+	Return Value: string representation of collection of cards
+	Local Variables: none
+	Algorithm: append the result of calling toString on each card to output of the function
+	Assistance Received: none
+	*/
 	
     string toString(){
         string output;
-        for (auto card: collection){
-            output += card->toString() + " ";
-        }
+		
+		for (int i = 0; i < collection.size(); i++) {
+			output += collection[i]->toString() + " ";
+		}
+        
         
         return output;
     }
-
+	/*
+	Function Name: sameSuit
+	Purpose: checks if all the cards in collection belong to same suit
+	Parameters: none
+	Return Value: true if all the card in collection belong to same suit
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     bool sameSuit(){
 		if (collection.empty()) {
-			cerr << "collection empty xa " << endl;
+			cerr << "collection empty" << endl;
 			throw "Empty collection";
 		}
         string suitOfFirstCard = collection.front()->getSuit(); //this was throwing vector iterator out of range error
@@ -139,32 +282,91 @@ public:
         }
         return true;
     }
-
+	/*
+	Function Name:	sortCardByValue
+	Purpose: sorts each card by their respective value.
+			Order after sorting is 3-9, X, J, Q, K, wildcard, joker
+	Parameters: none
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     void sortCardsByValue(){
         std::sort(collection.begin(), collection.end(), compareCardsByValue);
     }
 
-
+	/*
+	Function Name:	compareCardsByValue
+	Purpose: functor passes to the sort function
+	Parameters:  card1, pointer to abstract class representing a card
+				 card2, pointer to abstract class representing a card
+	Return Value: true if card1 is less than card 2
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     static bool compareCardsByValue(CardInterface* card1, CardInterface* card2){
         return card1->getValue() < card2->getValue();
     }
-
+	/*
+	Function Name:	setCollectionVector
+	Purpose: set the collection of cards
+	Parameters:  col, collection of cards 
+	Return Value: none
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     void setCollectionVector(vector<CardInterface*> col){
         this->collection  = col;
     }
 
-	
+	/*
+	Function Name:	checkBook
+	Purpose: check if a collection of cards is the book
+			Note: Jokers and wildcards are considered while checking book
+			collection of books return false
+			i.e. true for [ 4H 4J 4D ] but not for [ 4H 4J 4D 5H 5J 5D ]
+			also, true for [ 5H 5J J1 ]
+	Parameters:  col, collection of cards
+	Return Value: true if the collection of cards are book
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     bool checkBook(vector<CardInterface*> cards){
         CardCollection hand;
         hand.setCollectionVector(cards);
         return checkBook(hand);
     }
+	/*
+	Function Name:	checkRun
+	Purpose: check if a collection of cards is the run
+			Note: Jokers and wildcards are considered while checking book
+			collection of runs return false
+			i.e. true for [ 4H 5H 6H ] but not for [ 4H 5H 6H 4D 5D 6D ]
+			also, true for [ 4H 5H J1 ]
+	Parameters:  col, collection of cards
+	Return Value: true if the collection of cards are run
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     bool checkRun(vector<CardInterface*> cards){
         CardCollection hand;
         hand.setCollectionVector(cards);
         return checkRun(hand);
     }
-
+	/*
+	Function Name:	removeCards
+	Purpose: remove card present in one hand if also present in another hand
+	Parameters:  col, collection of vectors
+	Return Value: true if the collection of cards are run
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
 	vector<CardInterface*> removeCards(vector<CardInterface*>& hand, vector<CardInterface*> curr) {
 		vector<CardInterface*> output;
 		bool currContains = false;
@@ -496,8 +698,19 @@ public:
         return {normalCards, specialCards};
     }
 
-	// handles only same suit and joker
-	// does not handle combo of suit and joker
+	/*
+	Function Name:	checkRun
+	Purpose: check if a collection of cards is the run
+			Note: Jokers and wildcards are considered while checking book
+			collection of runs return false
+			i.e. true for [ 4H 5H 6H ] but not for [ 4H 5H 6H 4D 5D 6D ]
+			also, true for [ 4H 5H J1 ]
+	Parameters:  col, collection of vectors
+	Return Value: true if the collection of cards are run
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     static bool checkRun(CardCollection hand){
 		
         if (hand.getSize()<3) return false;
@@ -538,10 +751,19 @@ public:
         }
         return false;
     }
-    // assumption hand always has cards greater than 3
-    // if special cards are not present then hand has joker or wildcards only
-	// handles only single sequence of books and runs like 33J 333J
-	// doesn't handle 33J44J conditions
+	/*
+	Function Name:	checkBook
+	Purpose: check if a collection of cards is the book
+			Note: Jokers and wildcards are considered while checking book
+			collection of books return false
+			i.e. true for [ 4H 4J 4D ] but not for [ 4H 4J 4D 5H 5J 5D ]
+			also, true for [ 5H 5J J1 ]
+	Parameters:  col, collection of vectors
+	Return Value: true if the collection of cards are book
+	Local Variables: none
+	Algorithm: none
+	Assistance Received: none
+	*/
     static bool checkBook(CardCollection  hand){
 
         if (hand.getSize()<3) return false;
